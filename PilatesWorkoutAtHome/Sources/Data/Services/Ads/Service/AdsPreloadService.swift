@@ -17,6 +17,8 @@ class AdsPreloadService: Service {
         case languageClick
         case onboarding1
         case onboarding3
+        case profileSetupCompact
+        case profileSetupMedium
         
         var adChoicePosition: AdChoicesPosition {
             switch self {
@@ -70,6 +72,10 @@ class AdsPreloadService: Service {
         let languageClickAd = localStorageService.foodNativeLanguageClick
         let languageClickAdHight = localStorageService.foodNativeLanguageClickHight
         adConfigurations[.languageClick] = (languageClickAd, languageClickAdHight)
+
+        // Configure native Profile Setup ads (only register, do not load)
+        adConfigurations[.profileSetupCompact] = (localStorageService.profileSetupCompactAd, nil)
+        adConfigurations[.profileSetupMedium] = (localStorageService.profileSetupMediumAd, nil)
     }
     
     // MARK: - Public Methods
