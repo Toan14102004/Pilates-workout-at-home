@@ -24,13 +24,11 @@ enum ProfileSetupStep: Int, CaseIterable {
     case fitnessLevel
     case generatingPlan
 
-    static let quizStepCount = ProfileSetupStep.allCases.count - 1 // excludes generatingPlan
-
-    var progressLabel: String { "\(rawValue + 1)/\(Self.quizStepCount)" }
-
-    var progress: Double {
-        Double(rawValue + 1) / Double(Self.quizStepCount)
-    }
+    /// The Figma design counts 15 progress ticks even though the app only has 14 `ProfileSetupStep`
+    /// cases before `generatingPlan`: the "Height" screen alone advances the progress bar twice
+    /// (once empty, once a value is entered) without being a separate step the user taps "Next" on.
+    /// See `ProfileSetupView.ViewModel.progressNumerator` for how that extra tick is accounted for.
+    static let totalProgressSteps = 15
 
     var title: String {
         switch self {

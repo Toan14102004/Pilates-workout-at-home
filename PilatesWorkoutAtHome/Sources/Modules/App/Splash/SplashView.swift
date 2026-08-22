@@ -87,7 +87,7 @@ struct SplashView: View {
                 }
             })
         }
-        .onReceive(NotificationCenter.default.publisher(for: .remoteConfigReady)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .appConfigReady)) { _ in
             isRemoteConfigReady = true
             handlePushNext()
         }

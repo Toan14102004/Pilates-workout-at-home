@@ -42,6 +42,25 @@ extension ProfileSetupView {
             }
         }
 
+        // MARK: - Progress
+
+        /// 1-based tick out of `ProfileSetupStep.totalProgressSteps`. Every step is one tick except
+        /// "Height", which is two (empty vs. a value entered) to match the Figma "n/15" labels — so
+        /// every step after Height is shifted by one to keep the numbering in sync.
+        var progressNumerator: Int {
+            let base = currentStep.rawValue + 1
+            if currentStep == .height {
+                return heightText.isEmpty ? base : base + 1
+            }
+            return currentStep.rawValue > ProfileSetupStep.height.rawValue ? base + 1 : base
+        }
+
+        var progressLabel: String { "\(progressNumerator)/\(ProfileSetupStep.totalProgressSteps)" }
+
+        var progressFraction: Double {
+            Double(progressNumerator) / Double(ProfileSetupStep.totalProgressSteps)
+        }
+
         // MARK: - Selection helpers
 
         func isSelected(_ value: String, in keyPath: KeyPath<ProfileSetupAnswers, String?>) -> Bool {

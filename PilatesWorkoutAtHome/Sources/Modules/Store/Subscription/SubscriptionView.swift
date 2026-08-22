@@ -10,7 +10,7 @@ import StoreKit
 import SwiftUI
 
 struct SubscriptionView: View {
-    @Injected var firebaseAnalyticsService: FirebaseAnalyticsService
+    @Injected var analyticsService: AnalyticsService
     @Injected var localStorageService: LocalStorageService
     @Injected var adsManager: AdsManager
 

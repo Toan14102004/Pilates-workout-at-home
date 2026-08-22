@@ -1,12 +1,11 @@
 //
-//  FirebaseAnalyticsService.swift
+//  AnalyticsService.swift
 //  PilatesWorkoutAtHome
 //
-//  Created by Auto on 11/2/25.
+//  Created by Toan Nguyen on 22/8/26.
 //
 
 import Foundation
-import FirebaseAnalytics
 
 enum AnalyticsParameterKey {
     static let screen = "screen"
@@ -42,52 +41,44 @@ enum AnalyticsParameterKey {
     static let isOnboarding = "isOnboarding"
 }
 
-class FirebaseAnalyticsService: Service {
+/// Local, dependency-free analytics logging. No remote reporting backend is wired up —
+/// this only surfaces events to the console in debug builds. Swap the body of these
+/// methods for whatever analytics SDK the app adopts in the future.
+class AnalyticsService: Service {
     var shouldAutostart: Bool { true }
-    
-    func start() {
-        // Service tự động start khi app launch
-        // Firebase Analytics đã được configure trong AppDelegate
-    }
-    
-    func stop() {
-        // Không cần cleanup cho Firebase Analytics
-    }
-    
+
+    func start() {}
+
+    func stop() {}
+
     // MARK: - Screen Tracking
-    
+
     /// Track screen view với tên màn hình
     /// - Parameters:
     ///   - name: Tên màn hình (ví dụ: "home_screen")
     ///   - parameters: Các tham số bổ sung (optional)
     func trackScreen(name: String, parameters: [String: Any]? = nil) {
-        var screenParameters: [String: Any] = [
-            AnalyticsParameterScreenName: name,
-            AnalyticsParameterScreenClass: name
-        ]
-        
-        if let parameters = parameters {
-            screenParameters.merge(parameters) { (_, new) in new }
-        }
-        
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: screenParameters)
+        log(event: "screen_view", name: name, parameters: parameters)
     }
-    
+
     // MARK: - Event Tracking
-    
+
     /// Track custom event
     /// - Parameters:
     ///   - name: Tên event
     ///   - parameters: Các tham số của event
     func trackEvent(name: String, parameters: [String: Any]? = nil) {
-        Analytics.logEvent(name, parameters: parameters)
+        log(event: name, name: name, parameters: parameters)
     }
 
     /// Preferred helper for logging analytics events.
-    /// Keeps naming consistent with Firebase terminology while allowing
-    /// future custom behavior (sampling, extra metadata, etc.)
     func logEvent(name: String, parameters: [String: Any]? = nil) {
         trackEvent(name: name, parameters: parameters)
     }
-}
 
+    private func log(event: String, name: String, parameters: [String: Any]?) {
+        #if DEBUG
+        print("[AnalyticsService] \(event): \(name) \(parameters ?? [:])")
+        #endif
+    }
+}

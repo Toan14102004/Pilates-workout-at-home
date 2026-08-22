@@ -17,19 +17,20 @@ class NativeAdBannerView: NativeAdView {
     textAlignment: .center
   )
   let headlineLabel = UILabel(
-    text: "", font: .systemFont(ofSize: 15, weight: .medium), textColor: Asset.Color.white.uiColor)
+    text: "", font: .systemFont(ofSize: 15, weight: .medium), textColor: Asset.Color.textPrimary.uiColor)
   let iconImageView = UIImageView()
   let bodyLabel = UILabel(
-    text: "", font: .systemFont(ofSize: 14, weight: .regular), textColor: Asset.Color.white.uiColor)
+    text: "", font: .systemFont(ofSize: 14, weight: .regular), textColor: Asset.Color.textSecondary.uiColor)
   let starRatingImageView = UIImageView()
   let callToActionButton = UIButton(
     title: "Install",
-    titleColor: Asset.Color.black.uiColor,
+    titleColor: Asset.Color.white.uiColor,
     font: .boldSystemFont(ofSize: 14),
-    backgroundColor: Asset.Color.primary.uiColor,
+    backgroundColor: .clear,
     target: nil,
     action: nil
   )
+  private let callToActionGradientLayer = AppGradient.makeCAGradientLayer()
 
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -49,8 +50,8 @@ class NativeAdBannerView: NativeAdView {
     adTag.text = NSLocalizedString("Ad", comment: "Ad tag label")
     adTag.textColor = Asset.Color.black.uiColor
 
-    // Set black background for the entire view
-    backgroundColor = Asset.Color.black.uiColor
+    // Set background for the entire view
+    backgroundColor = Asset.Color.bgAds.uiColor
 
     // Configure icon
     iconImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -74,6 +75,8 @@ class NativeAdBannerView: NativeAdView {
     callToActionButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
     callToActionButton.setContentCompressionResistancePriority(.required, for: .horizontal)
     callToActionButton.setContentHuggingPriority(.required, for: .horizontal)
+    callToActionGradientLayer.cornerRadius = 8
+    callToActionButton.layer.insertSublayer(callToActionGradientLayer, at: 0)
     callToActionView = callToActionButton
 
     // Position ad tag in top-left corner
@@ -97,5 +100,10 @@ class NativeAdBannerView: NativeAdView {
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    callToActionGradientLayer.frame = callToActionButton.bounds
   }
 }

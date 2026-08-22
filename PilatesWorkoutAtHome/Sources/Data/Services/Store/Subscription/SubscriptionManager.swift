@@ -67,7 +67,7 @@ class SubscriptionManager: ObservableObject {
         }
 
         // lắng nghe Remote Config update
-        NotificationCenter.default.addObserver(forName: .remoteConfigReady, object: nil, queue: .main) { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: .appConfigReady, object: nil, queue: .main) { [weak self] _ in
             Task {
                 await self?.fetchSubscriptionProducts()
                 await self?.validateCurrentSubscription()

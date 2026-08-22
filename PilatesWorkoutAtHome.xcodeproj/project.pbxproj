@@ -17,10 +17,6 @@
 		A7FB83B32E98F82800C4E1A5 /* MijickTimer in Frameworks */ = {isa = PBXBuildFile; productRef = A7FB83B22E98F82800C4E1A5 /* MijickTimer */; };
 		AF073AC32DF71A920077DB7B /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = AF073AC22DF71A920077DB7B /* SwiftUIIntrospect */; };
 		AF8B995B2E03286E007FB68B /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF8B995A2E03286E007FB68B /* StoreKit.framework */; };
-		AFB8D1212E0EFB5A009EC42F /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AFB8D1202E0EFB5A009EC42F /* FirebaseAnalytics */; };
-		AFB8D1232E0EFB5A009EC42F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AFB8D1222E0EFB5A009EC42F /* FirebaseAuth */; };
-		AFB8D1252E0EFB5A009EC42F /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AFB8D1242E0EFB5A009EC42F /* FirebaseCrashlytics */; };
-		AFB8D1272E0EFB5A009EC42F /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = AFB8D1262E0EFB5A009EC42F /* FirebaseRemoteConfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,18 +53,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AFB8D1212E0EFB5A009EC42F /* FirebaseAnalytics in Frameworks */,
 				A76313BF2E7170D70098E06E /* FlagAndCountryCode in Frameworks */,
 				316B57192F3C7827003CC81A /* CoreDataKit in Frameworks */,
 				A7A9E07C2E8E27FF0064EDDC /* Kingfisher in Frameworks */,
 				AF073AC32DF71A920077DB7B /* SwiftUIIntrospect in Frameworks */,
 				316B57172F3C77AF003CC81A /* CoreDataKit in Frameworks */,
-				AFB8D1252E0EFB5A009EC42F /* FirebaseCrashlytics in Frameworks */,
 				AF8B995B2E03286E007FB68B /* StoreKit.framework in Frameworks */,
 				A7FB83B32E98F82800C4E1A5 /* MijickTimer in Frameworks */,
-				AFB8D1232E0EFB5A009EC42F /* FirebaseAuth in Frameworks */,
 				A728730B2EFE68760092169A /* BottomSheet in Frameworks */,
-				AFB8D1272E0EFB5A009EC42F /* FirebaseRemoteConfig in Frameworks */,
 				A785DEF32F35D38200D71B5E /* CoreDataKit in Frameworks */,
 				7C0206119F39CD4333B9956D /* Pods_PilatesWorkoutAtHome.framework in Frameworks */,
 			);
@@ -125,7 +117,6 @@
 				AFB7AB162CEB790D007C8CD4 /* Frameworks */,
 				AFB7AB172CEB790D007C8CD4 /* Resources */,
 				AF2ECFAD2D809A520025B167 /* SwiftLint */,
-				A765059D2E868EC900553001 /* Upload dSyms */,
 				6E9ACADC8307A74784703F48 /* [CP] Embed Pods Frameworks */,
 				9D8A615585C11A0051244AF3 /* [CP] Copy Pods Resources */,
 			);
@@ -178,7 +169,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				AF073AC12DF71A920077DB7B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
-				AFB8D11F2E0EFB5A009EC42F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				A76313BD2E7170D70098E06E /* XCRemoteSwiftPackageReference "FlagAndCountryCode" */,
 				A7A9E07A2E8E27FF0064EDDC /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				A7FB83B12E98F82800C4E1A5 /* XCRemoteSwiftPackageReference "Timer" */,
@@ -247,30 +237,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PilatesWorkoutAtHome/Pods-PilatesWorkoutAtHome-resources.sh\"\n";
 			showEnvVarsInLog = 0;
-		};
-		A765059D2E868EC900553001 /* Upload dSyms */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
-				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
-				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
-			);
-			name = "Upload dSyms";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
 		};
 		AF2ECFAD2D809A520025B167 /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -927,14 +893,6 @@
 				minimumVersion = 1.3.0;
 			};
 		};
-		AFB8D11F2E0EFB5A009EC42F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 11.2.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -977,26 +935,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AF073AC12DF71A920077DB7B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
 			productName = SwiftUIIntrospect;
-		};
-		AFB8D1202E0EFB5A009EC42F /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AFB8D11F2E0EFB5A009EC42F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		AFB8D1222E0EFB5A009EC42F /* FirebaseAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AFB8D11F2E0EFB5A009EC42F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
-		};
-		AFB8D1242E0EFB5A009EC42F /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AFB8D11F2E0EFB5A009EC42F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
-		AFB8D1262E0EFB5A009EC42F /* FirebaseRemoteConfig */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AFB8D11F2E0EFB5A009EC42F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseRemoteConfig;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

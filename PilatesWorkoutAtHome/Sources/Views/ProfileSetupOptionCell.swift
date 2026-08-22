@@ -18,7 +18,7 @@ struct ProfileSetupOptionCell: View {
                 .font(Typography.bodyLarge)
                 .foregroundStyle(isSelected ? Asset.Color.white.color : Asset.Color.textPrimary.color)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, Layout.Spacing.s + Layout.Spacing.xxs)
+                .padding(.vertical, Layout.Spacing.l)
                 .padding(.horizontal, Layout.Spacing.m)
                 .background(isSelected ? Asset.Color.secondaryColor.color : Asset.Color.white.color)
                 .overlay {

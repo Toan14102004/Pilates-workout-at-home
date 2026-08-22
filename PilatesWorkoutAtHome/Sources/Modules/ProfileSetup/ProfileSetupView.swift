@@ -17,14 +17,17 @@ struct ProfileSetupView: View {
             } else {
                 VStack(spacing: 0) {
                     header
+                        .padding(.top, Layout.Spacing.m)
 
                     ScrollView {
-                        stepContent
-                            .padding(.top, Layout.Spacing.l)
-                            .padding(.bottom, Layout.Spacing.m)
-                    }
+                        VStack(spacing: 0) {
+                            stepContent
+                                .padding(.vertical, Layout.Spacing.l)
 
-                    footer
+                            footer
+                                .padding(.top, Layout.Spacing.xl)
+                        }
+                    }
                 }
             }
         }
@@ -52,12 +55,12 @@ struct ProfileSetupView: View {
 
                 progressBar
 
-                Text(viewModel.currentStep.progressLabel)
+                Text(viewModel.progressLabel)
                     .font(Typography.bodyMedium)
                     .foregroundStyle(Asset.Color.textSecondary.color)
                     .fixedSize()
             }
-            .frame(height: 54)
+//            .frame(height: 54)
             .padding(.horizontal, Layout.Spacing.m)
 
             VStack(alignment: .leading, spacing: Layout.Spacing.xxs) {
@@ -65,6 +68,7 @@ struct ProfileSetupView: View {
                     .font(.custom("Didot-Bold", size: 24))
                     .foregroundStyle(Asset.Color.textPrimary.color)
                     .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, Layout.Spacing.m)
 
                 if let subtitle = viewModel.currentStep.subtitle {
                     Text(subtitle)
@@ -75,7 +79,7 @@ struct ProfileSetupView: View {
             }
             .padding(.horizontal, Layout.Spacing.m)
         }
-        .padding(.top, UIApplication.shared.safeAreaTop)
+        .padding(.top, Layout.Spacing.xs)
     }
 
     private var progressBar: some View {
@@ -84,7 +88,7 @@ struct ProfileSetupView: View {
                 Capsule().fill(Asset.Color.bgSecondary.color)
                 Capsule()
                     .fill(Asset.Color.mainColor.color)
-                    .frame(width: geometry.size.width * viewModel.currentStep.progress)
+                    .frame(width: geometry.size.width * viewModel.progressFraction, height: 8)
             }
         }
         .frame(height: 4)
@@ -188,12 +192,12 @@ struct ProfileSetupView: View {
                     .font(Typography.bodyLarge)
                     .foregroundStyle(Asset.Color.white.color)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, Layout.Spacing.s + Layout.Spacing.xxs)
+                    .padding(.vertical, Layout.Spacing.m)
                     .background(viewModel.isNextEnabled ? Asset.Color.mainColor.color : Asset.Color.gray.color)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .disabled(!viewModel.isNextEnabled)
-            .padding(.horizontal, Layout.Spacing.m)
+            .padding(.horizontal, Layout.Spacing.xxl)
         }
         .padding(.top, Layout.Spacing.m)
         .padding(.bottom, UIApplication.shared.safeAreaBottom + Layout.Spacing.s)

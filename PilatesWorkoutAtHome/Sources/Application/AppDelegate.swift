@@ -8,7 +8,6 @@
 import AdSupport
 import Combine
 import FBSDKCoreKit
-import FirebaseCore
 import Foundation
 import GoogleMobileAds
 import SwiftUI
@@ -42,12 +41,12 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         Dependency { FileStorageManager() }
         Dependency { OnDemandResourceService() }
         Dependency { DatabaseService.createDefault() }
-        Dependency { FirebaseRemoteConfigManager() }
         Dependency { SubscriptionManager() }
         Dependency { AdsManager() }
         Dependency { AdsPreloadService() }
         Dependency { LoadingService() }
-        Dependency { FirebaseAnalyticsService() }
+        Dependency { AnalyticsService() }
+        Dependency { AppConfigService() }
         Dependency { GitHubDataService() }
         Dependency { RealUserPermissionsInteractor(openAppSettings: {
             URL(string: UIApplication.openSettingsURLString).flatMap {
@@ -60,7 +59,6 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        firebaseConfig()
         adsMobileAdsConfig()
         adjustConfig()
 
@@ -145,7 +143,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
-// MARK: Firebase config
+// MARK: Ads config
 
 private extension AppDelegate {
     func adsMobileAdsConfig() {
@@ -157,23 +155,6 @@ private extension AppDelegate {
         }
     }
 }
-
-private extension AppDelegate {
-    func firebaseConfig() {
-        guard let filePath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-              let options = FirebaseOptions(contentsOfFile: filePath) else {
-            fatalError("Not found GoogleService-Info.plist")
-        }
-
-        guard options.apiKey?.hasPrefix("REPLACE_WITH_") == false else {
-            print("⚠️ GoogleService-Info.plist chưa được cấu hình với project Firebase thật, bỏ qua FirebaseApp.configure().")
-            return
-        }
-
-        FirebaseApp.configure(options: options)
-    }
-}
-
 
 // MARK: Adjust config
 private extension AppDelegate {

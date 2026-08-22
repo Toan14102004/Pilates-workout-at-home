@@ -41,13 +41,13 @@ class AdsPreloadService: Service {
         // Listen for remote config ready notification
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(remoteConfigReady),
-            name: .remoteConfigReady,
+            selector: #selector(appConfigReady),
+            name: .appConfigReady,
             object: nil
         )
     }
     
-    @objc private func remoteConfigReady() {
+    @objc private func appConfigReady() {
         // Only configure ad placements after remote config is ready, do NOT load ads yet
         guard !didConfigure else { return }
         didConfigure = true
