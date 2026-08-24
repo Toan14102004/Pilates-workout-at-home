@@ -37,6 +37,7 @@ protocol UserDefaultService: AnyObject {
     var foodNativeLanguageHight: AdPlacement { get set }
     var profileSetupCompactAd: AdPlacement { get set }
     var profileSetupMediumAd: AdPlacement { get set }
+    var practiceCompactAd: AdPlacement { get set }
 
     // API Configuration
     var foodScanBaseURL: String { get set }
@@ -47,6 +48,13 @@ protocol UserDefaultService: AnyObject {
 
     // Profile Setup
     var profileSetupAnswers: ProfileSetupAnswers { get set }
+
+    // Practice / Workout progress
+    var workoutSettings: WorkoutSettings { get set }
+    var completedExerciseIds: [String] { get set }
+    var completedWorkoutIds: [String] { get set }
+    var currentWorkoutDayId: String? { get set }
+    var currentProgramId: String? { get set }
 }
 
 private enum Keys {
@@ -79,6 +87,7 @@ private enum Keys {
     static let foodNativeLanguageClickHight = "food_native_language_click_high"
     static let profileSetupCompactAd = "profile_setup_compact_ad"
     static let profileSetupMediumAd = "profile_setup_medium_ad"
+    static let practiceCompactAd = "practice_compact_ad"
 
     // API Configuration
     static let foodScanBaseURL = "food_scan_base_url"
@@ -88,6 +97,13 @@ private enum Keys {
 
     // Profile Setup
     static let profileSetupAnswers = "profile_setup_answers"
+
+    // Practice / Workout progress
+    static let workoutSettings = "workout_settings"
+    static let completedExerciseIds = "completed_exercise_ids"
+    static let completedWorkoutIds = "completed_workout_ids"
+    static let currentWorkoutDayId = "current_workout_day_id"
+    static let currentProgramId = "current_program_id"
 }
 
 class LocalStorageService: UserDefaultService {
@@ -194,6 +210,12 @@ class LocalStorageService: UserDefaultService {
     )
     var profileSetupMediumAd: AdPlacement
 
+    @ObjectUserDefaultWrapper(
+        key: Keys.practiceCompactAd,
+        defaultValue: AdPlacement(id: "ca-app-pub-3940256099942544/2247696110", isEnabled: true)
+    )
+    var practiceCompactAd: AdPlacement
+
     // MARK: - PilatesWorkoutAtHome Limit
     @UserDefaultWrapper(key: Keys.maxFreeIdentityScan, defaultValue: 3)
     var maxFreeIdentityScan: Int
@@ -201,4 +223,20 @@ class LocalStorageService: UserDefaultService {
     // MARK: - Profile Setup
     @ObjectUserDefaultWrapper(key: Keys.profileSetupAnswers, defaultValue: ProfileSetupAnswers())
     var profileSetupAnswers: ProfileSetupAnswers
+
+    // MARK: - Practice / Workout progress
+    @ObjectUserDefaultWrapper(key: Keys.workoutSettings, defaultValue: WorkoutSettings())
+    var workoutSettings: WorkoutSettings
+
+    @ObjectUserDefaultWrapper(key: Keys.completedExerciseIds, defaultValue: [])
+    var completedExerciseIds: [String]
+
+    @ObjectUserDefaultWrapper(key: Keys.completedWorkoutIds, defaultValue: [])
+    var completedWorkoutIds: [String]
+
+    @ObjectUserDefaultWrapper(key: Keys.currentWorkoutDayId, defaultValue: nil)
+    var currentWorkoutDayId: String?
+
+    @ObjectUserDefaultWrapper(key: Keys.currentProgramId, defaultValue: nil)
+    var currentProgramId: String?
 }

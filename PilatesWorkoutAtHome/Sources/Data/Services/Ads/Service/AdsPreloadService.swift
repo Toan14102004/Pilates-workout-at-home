@@ -19,6 +19,7 @@ class AdsPreloadService: Service {
         case onboarding3
         case profileSetupCompact
         case profileSetupMedium
+        case practiceCompact
         
         var adChoicePosition: AdChoicesPosition {
             switch self {
@@ -76,6 +77,9 @@ class AdsPreloadService: Service {
         // Configure native Profile Setup ads (only register, do not load)
         adConfigurations[.profileSetupCompact] = (localStorageService.profileSetupCompactAd, nil)
         adConfigurations[.profileSetupMedium] = (localStorageService.profileSetupMediumAd, nil)
+
+        // Configure native Practice ads (only register, do not load)
+        adConfigurations[.practiceCompact] = (localStorageService.practiceCompactAd, nil)
     }
     
     // MARK: - Public Methods

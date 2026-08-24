@@ -11,6 +11,7 @@ import SwiftUI
 public enum NativeAdViewStyle {
     case basic
     case banner
+    case contentCard
     case fullScreen
     case large(isFilled: Bool = true)
     case largeGray
@@ -28,6 +29,8 @@ public enum NativeAdViewStyle {
             return makeNibView(name: "NativeAdView")
         case .banner:
             return NativeAdBannerView(frame: .zero)
+        case .contentCard:
+            return NativeAdContentCardView(frame: .zero)
         case .fullScreen:
             return NativeAdFullScreenView(frame: .zero)
         case .large(let isFilled):
@@ -59,6 +62,8 @@ public enum NativeAdViewStyle {
             100
         case .banner:
             80
+        case .contentCard:
+            204
         case .fullScreen:
             UIScreen.main.bounds.height
         case .large:
