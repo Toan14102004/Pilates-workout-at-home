@@ -18,10 +18,10 @@ A comprehensive SwiftUI-based iOS application template that implements Clean Arc
 - **🌐 Network Layer** - Alamofire-based API service with authentication interceptors
 - **📁 File Management** - Local file storage and management system
 - **💾 Core Data Integration** - Persistent data storage with repository pattern
-- **🔔 Push Notifications** - Firebase integration for remote notifications
+- **🔔 Push Notifications** - Native APNs remote notification handling
 - **🎨 Asset Management** - SwiftGen for type-safe asset and font access
 - **📱 Permission Handling** - Centralized user permission management
-- **🔧 Remote Configuration** - Firebase Remote Config integration
+- **🔧 App Configuration** - Local, code-level flags (`AppFlags`) for Ads/IAP — no remote config server
 
 ### Development Tools
 - **SwiftGen** - Automatic code generation for assets, fonts, and localizations
@@ -148,13 +148,12 @@ The project uses a custom DI container (`DIContainer`) that manages:
 
 ### Configuration
 
-1. **Firebase Setup**
-   - Add your `GoogleService-Info.plist` to the project
-   - Configure Firebase Remote Config keys
-
-2. **Environment Configuration**
+1. **Environment Configuration**
    - Update `Dev.xcconfig` and `Release.xcconfig` with your settings
    - Configure API endpoints and keys
+
+2. **Ads / IAP Flags**
+   - Flip `AppFlags.adsEnabled` / `AppFlags.iapTrialEnabled` (`Sources/Configuration/AppFlags.swift`) directly in code — no remote server to configure
 
 3. **In-App Purchases**
    - Update subscription product IDs in `SubscriptionManager.swift` ad and `Subscription.swift`
@@ -453,18 +452,12 @@ When testing auto-renewable subscriptions in the **iOS Sandbox environment**, Ap
    Product → Clean Build Folder (Cmd+Shift+K)
    ```
 
-4. **Firebase configuration issues**
-   - Ensure `GoogleService-Info.plist` is added to the project
-   - Verify bundle identifier matches Firebase project
-   - Check Firebase console for proper setup
-
 ## 📚 Additional Resources
 
 - [SwiftUI Documentation](https://developer.apple.com/documentation/swiftui/)
 - [Combine Framework](https://developer.apple.com/documentation/combine)
 - [Clean Architecture Guide](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - [MVVM Pattern in SwiftUI](https://developer.apple.com/documentation/swiftui/managing-model-data-in-your-app)
-- [Firebase iOS Setup](https://firebase.google.com/docs/ios/setup)
 - [In-App Purchase Guide](https://developer.apple.com/in-app-purchase/)
 
 ## 🤝 Contributing

@@ -17,6 +17,8 @@ class AdsPreloadService: Service {
         case languageClick
         case onboarding1
         case onboarding3
+        case profileSetupCompact
+        case profileSetupMedium
         
         var adChoicePosition: AdChoicesPosition {
             switch self {
@@ -39,13 +41,13 @@ class AdsPreloadService: Service {
         // Listen for remote config ready notification
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(remoteConfigReady),
-            name: .remoteConfigReady,
+            selector: #selector(appConfigReady),
+            name: .appConfigReady,
             object: nil
         )
     }
     
-    @objc private func remoteConfigReady() {
+    @objc private func appConfigReady() {
         // Only configure ad placements after remote config is ready, do NOT load ads yet
         guard !didConfigure else { return }
         didConfigure = true
@@ -70,6 +72,10 @@ class AdsPreloadService: Service {
         let languageClickAd = localStorageService.foodNativeLanguageClick
         let languageClickAdHight = localStorageService.foodNativeLanguageClickHight
         adConfigurations[.languageClick] = (languageClickAd, languageClickAdHight)
+
+        // Configure native Profile Setup ads (only register, do not load)
+        adConfigurations[.profileSetupCompact] = (localStorageService.profileSetupCompactAd, nil)
+        adConfigurations[.profileSetupMedium] = (localStorageService.profileSetupMediumAd, nil)
     }
     
     // MARK: - Public Methods

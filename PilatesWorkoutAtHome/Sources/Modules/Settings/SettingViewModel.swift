@@ -14,7 +14,7 @@ extension SettingView {
     class ViewModel: BaseViewModel {
         @Injected var keychainStorage: KeychainStorage
         @Injected var localStorageService: LocalStorageService
-        @Injected var analytics: FirebaseAnalyticsService
+        @Injected var analytics: AnalyticsService
         @Injected var adsManager: AdsManager
         @Navigation var navigation
 

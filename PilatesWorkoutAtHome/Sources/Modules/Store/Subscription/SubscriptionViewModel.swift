@@ -165,7 +165,7 @@ extension SubscriptionView {
     class ViewModel: BaseViewModel {
         @Navigation var navigator
         
-        @Injected var firebaseAnalyticsService: FirebaseAnalyticsService
+        @Injected var analyticsService: AnalyticsService
         @Injected var subscriptionManager: SubscriptionManager
 
         @Published var coordinator: Coordinator = .init()
@@ -203,7 +203,7 @@ extension SubscriptionView {
         }
         
         func goBack() {
-            firebaseAnalyticsService.logEvent(name: subscriptionEntryPoint.cancelEventName)
+            analyticsService.logEvent(name: subscriptionEntryPoint.cancelEventName)
             if subscriptionEntryPoint == .onboarding || subscriptionEntryPoint == .onboardingSecond {
                 navigator.push(RootView.Coordinator.Navigation.content)
             } else {
@@ -218,7 +218,7 @@ extension SubscriptionView {
                 onSuccess: { message in
                     DispatchQueue.main.async {
                         self.openAlertSuccess(message)
-                        self.firebaseAnalyticsService.logEvent(
+                        self.analyticsService.logEvent(
                             name: self.subscriptionEntryPoint.purchaseEventName,
                             parameters: ["productId": self.selectedProductId])
                     }

@@ -54,10 +54,7 @@ extension OnboardingView {
 
         func next() {
             if isLastPage {
-                navigator.presentCover(
-                    RootView.Coordinator.FullScreen.subscription(subscriptionEntryPoint: .onboarding),
-                    withNavigation: true
-                )
+                navigator.push(RootView.Coordinator.Navigation.profileSetup)
             } else {
                 currentPage += 1
             }

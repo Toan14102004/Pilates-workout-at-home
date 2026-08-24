@@ -30,6 +30,7 @@ struct RootView: View {
                         case .welcome: WelcomeView(viewModel: .init())
                         case .language: LanguageView(viewModel: .init(isOnboardingContext: true))
                         case .onboarding: OnboardingView(viewModel: .init())
+                        case .profileSetup: ProfileSetupView(viewModel: .init())
                         case .content: ContentView()
                         }
                     }

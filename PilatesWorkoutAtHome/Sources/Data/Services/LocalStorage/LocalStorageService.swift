@@ -35,13 +35,18 @@ protocol UserDefaultService: AnyObject {
     var foodNativeLanguageClick: AdPlacement { get set }
     var foodNativeLanguageClickHight: AdPlacement { get set }
     var foodNativeLanguageHight: AdPlacement { get set }
-    
+    var profileSetupCompactAd: AdPlacement { get set }
+    var profileSetupMediumAd: AdPlacement { get set }
+
     // API Configuration
     var foodScanBaseURL: String { get set }
-    
+
     // PilatesWorkoutAtHome - Limit
     // var countIdentityScan: Int { get set }
     var maxFreeIdentityScan: Int { get set }
+
+    // Profile Setup
+    var profileSetupAnswers: ProfileSetupAnswers { get set }
 }
 
 private enum Keys {
@@ -72,12 +77,17 @@ private enum Keys {
     static let foodNativeLanguageHight = "food_native_language_high"
     static let foodNativeLanguageClick = "food_native_language_click"
     static let foodNativeLanguageClickHight = "food_native_language_click_high"
-    
+    static let profileSetupCompactAd = "profile_setup_compact_ad"
+    static let profileSetupMediumAd = "profile_setup_medium_ad"
+
     // API Configuration
     static let foodScanBaseURL = "food_scan_base_url"
-    
+
     // PilatesWorkoutAtHome - Limit
     static let maxFreeIdentityScan = "max_free_identity_scan"
+
+    // Profile Setup
+    static let profileSetupAnswers = "profile_setup_answers"
 }
 
 class LocalStorageService: UserDefaultService {
@@ -171,8 +181,24 @@ class LocalStorageService: UserDefaultService {
         defaultValue: AdPlacement(id: "ca-app-pub-3940256099942544/2247696110", isEnabled: true)
     )
     var foodNativeLanguageClickHight: AdPlacement
-    
+
+    @ObjectUserDefaultWrapper(
+        key: Keys.profileSetupCompactAd,
+        defaultValue: AdPlacement(id: "ca-app-pub-3940256099942544/2247696110", isEnabled: true)
+    )
+    var profileSetupCompactAd: AdPlacement
+
+    @ObjectUserDefaultWrapper(
+        key: Keys.profileSetupMediumAd,
+        defaultValue: AdPlacement(id: "ca-app-pub-3940256099942544/2247696110", isEnabled: true)
+    )
+    var profileSetupMediumAd: AdPlacement
+
     // MARK: - PilatesWorkoutAtHome Limit
     @UserDefaultWrapper(key: Keys.maxFreeIdentityScan, defaultValue: 3)
     var maxFreeIdentityScan: Int
+
+    // MARK: - Profile Setup
+    @ObjectUserDefaultWrapper(key: Keys.profileSetupAnswers, defaultValue: ProfileSetupAnswers())
+    var profileSetupAnswers: ProfileSetupAnswers
 }

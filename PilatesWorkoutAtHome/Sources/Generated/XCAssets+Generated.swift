@@ -42,6 +42,7 @@ internal enum Asset {
     internal static let gray = ColorAsset(name: "gray")
     internal static let grayText = ColorAsset(name: "gray_text")
     internal static let mainColor = ColorAsset(name: "mainColor")
+    internal static let optionBorder = ColorAsset(name: "optionBorder")
     internal static let primary = ColorAsset(name: "primary")
     internal static let secondaryColor = ColorAsset(name: "secondaryColor")
     internal static let secondaryTint = ColorAsset(name: "secondaryTint")
@@ -89,6 +90,9 @@ internal enum Asset {
       internal static let portuguese = ImageAsset(name: "portuguese")
       internal static let spanish = ImageAsset(name: "spanish")
     }
+    internal enum ProfileSetup {
+      internal static let backChevron = ImageAsset(name: "backChevron")
+    }
     internal enum Setting {
       internal static let contact = ImageAsset(name: "contact")
       internal static let happy = ImageAsset(name: "happy")
@@ -107,6 +111,9 @@ internal enum Asset {
     internal enum Premium {
       internal static let premiumBanner = ImageAsset(name: "premiumBanner")
       internal static let textOverlay = ImageAsset(name: "textOverlay")
+    }
+    internal enum ProfileSetup {
+      internal static let generatingPlanIllustration = ImageAsset(name: "generatingPlanIllustration")
     }
     internal enum Setting {
       internal static let imageBackground = ImageAsset(name: "imageBackground")

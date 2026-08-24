@@ -8,6 +8,6 @@
 import Foundation
 
 extension Notification.Name {
-    static let remoteConfigReady = Notification.Name("remoteConfigReady")
+    static let appConfigReady = Notification.Name("appConfigReady")
     static let adsPreloadDidUpdate = Notification.Name("adsPreloadDidUpdate")
 }

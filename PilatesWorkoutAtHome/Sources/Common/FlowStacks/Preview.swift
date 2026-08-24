@@ -34,7 +34,7 @@ struct PreviewModifier: ViewModifier {
                         Dependency { SubscriptionManager() }
                         Dependency { GitHubDataService() }
                         Dependency { AdsManager() }
-                        Dependency { FirebaseAnalyticsService() }
+                        Dependency { AnalyticsService() }
                     }
                     dependencies.build()
                 }

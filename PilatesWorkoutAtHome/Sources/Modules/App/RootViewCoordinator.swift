@@ -13,6 +13,7 @@ extension RootView {
             case welcome
             case language
             case onboarding
+            case profileSetup
             case content
         }
 

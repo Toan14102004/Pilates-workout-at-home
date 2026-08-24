@@ -31,7 +31,7 @@ private struct ScreenTrackingModifier: ViewModifier {
     let screenName: String
     let parameters: [String: Any]?
     
-    @Injected var analyticsService: FirebaseAnalyticsService
+    @Injected var analyticsService: AnalyticsService
     
     func body(content: Content) -> some View {
         content
@@ -45,7 +45,7 @@ private struct ImpressionTrackingModifier: ViewModifier {
     let eventName: String
     let parameters: [String: Any]?
     
-    @Injected var analyticsService: FirebaseAnalyticsService
+    @Injected var analyticsService: AnalyticsService
     
     func body(content: Content) -> some View {
         content

@@ -26,12 +26,6 @@ target 'PilatesWorkoutAtHome' do
   # IAP
   pod 'TPInAppReceipt', '~> 3.4'
 
-  # Firebase
-  # pod 'FirebaseAnalytics', '11.2.0'
-  # pod 'FirebaseCrashlytics', '11.2.0'
-  # pod 'FirebaseRemoteConfig', '11.2.0'
-  # pod 'FirebaseAuth', '11.2.0'
-
   pod 'Adjust'
 
 end
