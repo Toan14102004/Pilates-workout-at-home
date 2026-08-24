@@ -30,7 +30,14 @@ public struct AdaptiveSize {
 
 // MARK: - Layout Namespace
 public enum Layout {
-    
+
+    // MARK: - Hero
+
+    /// Height of the photo/video header on the Schedule, Workout Day and Exercise Detail screens,
+    /// measured below the status bar -- callers add the safe-area inset so the media itself runs
+    /// edge to edge behind it.
+    public static let heroHeight: CGFloat = 220
+
     // MARK: - Spacing
     /// Spacing values following Apple's 8pt grid system.
     /// Use these for padding, margins, and gaps between elements.

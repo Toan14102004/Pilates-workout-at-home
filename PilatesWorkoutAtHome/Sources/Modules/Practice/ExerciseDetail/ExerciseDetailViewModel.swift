@@ -1,0 +1,128 @@
+//
+//  ExerciseDetailViewModel.swift
+//  PilatesWorkoutAtHome
+//
+//  Created by Toan Nguyen on 24/8/26.
+//
+
+import Combine
+import Foundation
+
+extension ExerciseDetailView {
+    class ViewModel: BaseViewModel {
+        @Navigation var navigator
+        @Injected var localStorageService: LocalStorageService
+        @Injected var workoutService: WorkoutService
+
+        @Published var coordinator = Coordinator()
+        @Published var exercises: [WorkoutExercise] = []
+        @Published var currentIndex = 0
+        @Published var isEditingDuration = false
+        @Published var draftDurationSeconds = 0
+        @Published var isLoading = false
+        @Published var errorMessage: String?
+
+        private let workoutId: String
+        private let initialExerciseId: String
+        /// Instruction text arrives from a second call per exercise, so fetched details are kept
+        /// to avoid re-requesting when the user pages back and forth.
+        private var detailRequested = Set<String>()
+        private var cancellables = Set<AnyCancellable>()
+
+        init(workoutId: String, initialExerciseId: String) {
+            self.workoutId = workoutId
+            self.initialExerciseId = initialExerciseId
+        }
+
+        var exercise: WorkoutExercise? {
+            guard exercises.indices.contains(currentIndex) else { return nil }
+            return exercises[currentIndex]
+        }
+
+        func loadIfNeeded() {
+            guard exercises.isEmpty, !isLoading else { return }
+            load()
+        }
+
+        func load() {
+            isLoading = true
+            errorMessage = nil
+
+            workoutService.workout(id: workoutId)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] completion in
+                    guard let self else { return }
+                    isLoading = false
+                    if case let .failure(error) = completion {
+                        errorMessage = error.errorDescription
+                    }
+                } receiveValue: { [weak self] day in
+                    guard let self else { return }
+                    exercises = day.exercises
+                    currentIndex = day.exercises.firstIndex { $0.id == self.initialExerciseId } ?? 0
+                    draftDurationSeconds = exercise?.durationSeconds ?? 0
+                    loadDetailForCurrent()
+                }
+                .store(in: &cancellables)
+        }
+
+        /// The workout list gives name, duration and video; How-to / Common Mistakes /
+        /// Breathing Tips only come from `/exercises/{id}`.
+        private func loadDetailForCurrent() {
+            guard let exercise, !detailRequested.contains(exercise.id) else { return }
+            detailRequested.insert(exercise.id)
+
+            workoutService.exercise(id: exercise.id, workoutId: workoutId)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] completion in
+                    if case .failure = completion {
+                        // The list already carries name, duration and video, so a failed detail
+                        // call costs the instruction text only -- not the screen.
+                        self?.detailRequested.remove(exercise.id)
+                    }
+                } receiveValue: { [weak self] detail in
+                    guard let self,
+                          let index = exercises.firstIndex(where: { $0.id == detail.id }) else { return }
+                    exercises[index] = exercises[index].merging(detail: detail)
+                }
+                .store(in: &cancellables)
+        }
+
+        var paginationLabel: String { "\(currentIndex + 1)/\(exercises.count)" }
+
+        var canGoPrevious: Bool { currentIndex > 0 }
+
+        var canGoNext: Bool { currentIndex < exercises.count - 1 }
+
+        func goPrevious() {
+            guard canGoPrevious else { return }
+            currentIndex -= 1
+            resetDraft()
+            loadDetailForCurrent()
+        }
+
+        func goNext() {
+            guard canGoNext else { return }
+            currentIndex += 1
+            resetDraft()
+            loadDetailForCurrent()
+        }
+
+        func resetDraft() {
+            draftDurationSeconds = exercise?.durationSeconds ?? 0
+            isEditingDuration = false
+        }
+
+        /// Duration overrides stay on device: `PUT /workouts/{id}/progress` needs a deviceId
+        /// registered through the secured `POST /users`, which the app cannot call yet.
+        func save() {
+            guard exercises.indices.contains(currentIndex) else { return }
+            exercises[currentIndex].durationSeconds = draftDurationSeconds
+            isEditingDuration = false
+        }
+
+        func close() {
+            navigator.goBack()
+        }
+    }
+}

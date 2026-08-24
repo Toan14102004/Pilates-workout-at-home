@@ -18,6 +18,9 @@ extension ContentView {
     enum Navigation: BaseNavigation {
       case settingView
       case languageView
+      case workoutSchedule(programId: String)
+      case workoutDay(workoutId: String)
+      case exerciseDetail(workoutId: String, exerciseId: String)
     }
 
     var alert: Alert?

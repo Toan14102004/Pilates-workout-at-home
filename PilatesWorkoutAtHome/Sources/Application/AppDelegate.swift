@@ -38,6 +38,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         Dependency { LocalStorageService() }
         Dependency { KeychainStorage() }
         Dependency { NetworkService() }
+        Dependency { WorkoutService() }
         Dependency { FileStorageManager() }
         Dependency { OnDemandResourceService() }
         Dependency { DatabaseService.createDefault() }

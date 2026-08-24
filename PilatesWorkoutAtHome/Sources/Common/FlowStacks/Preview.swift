@@ -33,6 +33,7 @@ struct PreviewModifier: ViewModifier {
                         Dependency { AdsPreloadService() }
                         Dependency { SubscriptionManager() }
                         Dependency { GitHubDataService() }
+                        Dependency { WorkoutService() }
                         Dependency { AdsManager() }
                         Dependency { AnalyticsService() }
                     }
