@@ -22,12 +22,12 @@ import Foundation
 final class WorkoutProgressStore: ObservableObject {
     @Injected var localStorageService: LocalStorageService
 
-    var completedExerciseIds: Set<String> { Set(localStorageService.completedExerciseIds) }
-
     var completedWorkoutIds: Set<String> { Set(localStorageService.completedWorkoutIds) }
 
-    func isExerciseCompleted(_ id: String) -> Bool {
-        localStorageService.completedExerciseIds.contains(id)
+    /// Completion is asked per workout, never per exercise alone: the API reuses one `exerciseId`
+    /// across many workouts, so finishing it in one says nothing about the others.
+    func isExerciseCompleted(_ exerciseId: String, in workoutId: String) -> Bool {
+        localStorageService.completedExerciseIds[workoutId]?.contains(exerciseId) ?? false
     }
 
     func isWorkoutCompleted(_ id: String) -> Bool {
@@ -35,15 +35,15 @@ final class WorkoutProgressStore: ObservableObject {
     }
 
     /// How far through a workout the user is, for the day-level progress bar.
-    func completedCount(in exercises: [WorkoutExercise]) -> Int {
-        let completed = completedExerciseIds
+    func completedCount(in exercises: [WorkoutExercise], workoutId: String) -> Int {
+        let completed = Set(localStorageService.completedExerciseIds[workoutId] ?? [])
         return exercises.filter { completed.contains($0.id) }.count
     }
 
     func markExerciseCompleted(_ exercise: WorkoutExercise, in workoutId: String) {
-        guard !isExerciseCompleted(exercise.id) else { return }
+        guard !isExerciseCompleted(exercise.id, in: workoutId) else { return }
         objectWillChange.send()
-        localStorageService.completedExerciseIds.append(exercise.id)
+        localStorageService.completedExerciseIds[workoutId, default: []].append(exercise.id)
         localStorageService.workoutCompletedCounts[workoutId, default: 0] += 1
     }
 
@@ -64,11 +64,12 @@ final class WorkoutProgressStore: ObservableObject {
         localStorageService.completedWorkoutIds.append(workoutId)
     }
 
-    /// Clears one workout's progress -- the "Restart" action on the Workout Day screen.
-    func reset(workoutId: String, exercises: [WorkoutExercise]) {
-        let ids = Set(exercises.map(\.id))
+    /// Clears one workout's progress -- the "Restart" action on the Workout Day screen. Only this
+    /// workout's exercises are forgotten; the same exercise stays done in any other workout that
+    /// shares it.
+    func reset(workoutId: String) {
         objectWillChange.send()
-        localStorageService.completedExerciseIds.removeAll { ids.contains($0) }
+        localStorageService.completedExerciseIds[workoutId] = nil
         localStorageService.completedWorkoutIds.removeAll { $0 == workoutId }
         localStorageService.workoutCompletedCounts[workoutId] = nil
     }

@@ -60,10 +60,10 @@ extension WorkoutDayView {
         var exercises: [WorkoutExercise] { day?.exercises ?? [] }
 
         func isCompleted(_ exercise: WorkoutExercise) -> Bool {
-            progressStore.isExerciseCompleted(exercise.id)
+            progressStore.isExerciseCompleted(exercise.id, in: workoutId)
         }
 
-        var completedCount: Int { progressStore.completedCount(in: exercises) }
+        var completedCount: Int { progressStore.completedCount(in: exercises, workoutId: workoutId) }
 
         var hasStarted: Bool { exercises.contains { isCompleted($0) } }
 
@@ -86,7 +86,7 @@ extension WorkoutDayView {
         }
 
         func restart() {
-            progressStore.reset(workoutId: workoutId, exercises: exercises)
+            progressStore.reset(workoutId: workoutId)
         }
 
         func openSettings() {

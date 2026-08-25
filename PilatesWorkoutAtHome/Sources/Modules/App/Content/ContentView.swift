@@ -62,9 +62,12 @@ struct ContentView: View {
             TabView(selection: $currentTab) {
                 ForEach(Tab.allCases, id: \.self) { tab in
                     Group {
-                        if tab == .practice {
+                        switch tab {
+                        case .practice:
                             PracticeHomeView()
-                        } else {
+                        case .discover:
+                            DiscoverHomeView()
+                        default:
                             // TODO: replace with real screens as each flow lands (see 7-day sprint plan).
                             placeholderContent(for: tab)
                         }
@@ -94,6 +97,12 @@ struct ContentView: View {
                 ExerciseDetailView(workoutId: workoutId, initialExerciseId: exerciseId)
             case let .workoutSession(workoutId):
                 WorkoutSessionView(workoutId: workoutId)
+            case let .discoverCategory(sectionId, title):
+                DiscoverCategoryView(sectionId: sectionId, title: title)
+            case .discoverWeeklyTop:
+                WeeklyTopView()
+            case let .discoverWorkout(workoutId):
+                DiscoverWorkoutView(workoutId: workoutId)
             }
         }
         .popup(item: $viewModel.coordinator.alert) { item in

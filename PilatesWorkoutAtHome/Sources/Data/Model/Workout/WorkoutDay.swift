@@ -15,6 +15,9 @@ struct WorkoutDay: Identifiable, Equatable {
     let phaseNumber: Int?
     let planName: String
     let title: String
+    /// The workout's own blurb. Only the Discover feed and `/workouts/{id}` carry one; a program
+    /// day summary does not, so this is empty there and the UI drops the paragraph.
+    let summary: String
     let level: String
     let isRestDay: Bool
     let imageUrl: URL?
@@ -24,6 +27,8 @@ struct WorkoutDay: Identifiable, Equatable {
     /// Only the Discover/weekly-top endpoints carry calories; a program day does not, so this is
     /// nil there and the UI hides the stat rather than inventing a number.
     let kcal: Double?
+    /// Position in the weekly ranking. Only the weekly-top endpoints supply it.
+    let rank: Int?
     /// Empty until `/workouts/{id}` has been fetched for this day.
     var exercises: [WorkoutExercise]
 
@@ -38,6 +43,13 @@ struct WorkoutDay: Identifiable, Equatable {
     var displayExerciseCount: Int { isLoaded ? exercises.count : exerciseCount }
 
     var exerciseCountLabel: String { "\(netDurationMinutes) min · \(displayExerciseCount) exercises" }
+
+    /// "Intermediate · 17 min" -- the caption under every Discover card and ranking row. Workouts
+    /// the API ships without a level fall back to the duration alone rather than a stray separator.
+    var levelDurationLabel: String {
+        let duration = "\(netDurationMinutes) min"
+        return level.isEmpty ? duration : "\(level) · \(duration)"
+    }
 
     static func == (lhs: WorkoutDay, rhs: WorkoutDay) -> Bool {
         lhs.id == rhs.id && lhs.exercises.count == rhs.exercises.count

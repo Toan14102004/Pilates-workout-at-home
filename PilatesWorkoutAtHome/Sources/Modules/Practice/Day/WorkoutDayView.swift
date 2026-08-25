@@ -76,7 +76,7 @@ struct WorkoutDayView: View {
                 .foregroundStyle(Asset.Color.textSecondary.color)
         }
 
-        statsRow(day)
+        WorkoutStatsRow(day: day)
 
         VStack(alignment: .leading, spacing: Layout.Spacing.m) {
             Text("Exercises (\(day.displayExerciseCount))")
@@ -94,31 +94,6 @@ struct WorkoutDayView: View {
                     )
                 }
             }
-        }
-    }
-
-    private func statsRow(_ day: WorkoutDay) -> some View {
-        HStack {
-            statColumn(value: day.level, label: "Level")
-            Spacer()
-            // The program-day endpoint carries no calorie figure, so the stat is hidden rather
-            // than filled with a guess. Discover workouts do have one.
-            if let kcal = day.kcal {
-                statColumn(value: String(format: "%.1f", kcal), label: "Kcal")
-                Spacer()
-            }
-            statColumn(value: "\(day.netDurationMinutes) min", label: "Net Duration")
-        }
-    }
-
-    private func statColumn(value: String, label: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(value)
-                .font(Typography.bodyLarge)
-                .foregroundStyle(Asset.Color.textPrimary.color)
-            Text(label)
-                .font(Typography.captionSmall)
-                .foregroundStyle(Asset.Color.textSecondary.color)
         }
     }
 

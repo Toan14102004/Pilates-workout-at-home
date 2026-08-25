@@ -64,6 +64,31 @@ final class WorkoutService {
             .eraseToAnyPublisher()
     }
 
+    /// Every workout in one Discover section, paged -- the "View all" screen behind a section
+    /// header. The response names the section, so the screen can title itself from one call.
+    func discoverSection(id: Int, page: Int = 1, limit: Int = 20) -> AnyPublisher<DiscoverSectionPage, NetworkError> {
+        networkService
+            .get(endpoint: "/workouts/discover/sections/\(id)",
+                 parameters: ["page": page, "limit": limit],
+                 responseType: APIResponse<DiscoverSectionPageDTO>.self)
+            .map { Self.sectionPage(from: $0.data) }
+            .eraseToAnyPublisher()
+    }
+
+    /// The full weekly ranking, paged. Discover shows the first few rows and links here.
+    func weeklyTop(page: Int = 1, limit: Int = 20) -> AnyPublisher<WorkoutPage, NetworkError> {
+        networkService
+            .get(endpoint: "/workouts/weekly-top",
+                 parameters: ["page": page, "limit": limit],
+                 responseType: APIResponse<WeeklyTopPageDTO>.self)
+            .map { dto in
+                WorkoutPage(items: (dto.data.items ?? []).map(Self.mapDiscoverDay),
+                            page: dto.data.page ?? page,
+                            totalPages: dto.data.totalPages ?? 1)
+            }
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Exercises
 
     /// Full instructions and media for one exercise. `workoutId` lets the server scope the
@@ -152,12 +177,14 @@ private extension WorkoutService {
             phaseNumber: dto.phaseNumber,
             planName: planName,
             title: dto.title ?? "Day \(dto.dayNumber)",
+            summary: "",
             level: readable(level: workout?.level),
             isRestDay: dto.isRestDay ?? false,
             imageUrl: url(workout?.imageUrl ?? fallbackImage),
             durationSeconds: workout?.durationSeconds ?? 0,
             exerciseCount: workout?.exerciseCount ?? 0,
             kcal: workout?.calories,
+            rank: nil,
             exercises: []
         )
     }
@@ -174,12 +201,14 @@ private extension WorkoutService {
             phaseNumber: nil,
             planName: dto.name,
             title: dto.name,
+            summary: dto.description ?? "",
             level: readable(level: dto.level),
             isRestDay: false,
             imageUrl: image,
             durationSeconds: dto.estimatedDurationSeconds ?? 0,
             exerciseCount: dto.exerciseCount ?? exercises.count,
             kcal: dto.calories,
+            rank: nil,
             exercises: exercises
         )
     }
@@ -191,12 +220,14 @@ private extension WorkoutService {
             phaseNumber: nil,
             planName: dto.name,
             title: dto.name,
+            summary: dto.description ?? "",
             level: readable(level: dto.level),
             isRestDay: false,
             imageUrl: url(dto.imageUrl),
             durationSeconds: dto.durationSeconds ?? 0,
             exerciseCount: dto.exerciseCount ?? 0,
             kcal: dto.calories,
+            rank: dto.rank,
             exercises: []
         )
     }
@@ -256,13 +287,20 @@ private extension WorkoutService {
     static func discoverContent(from dto: DiscoverDTO) -> DiscoverContent {
         DiscoverContent(
             sections: (dto.sections ?? []).map { section in
-                DiscoverSection(
-                    id: section.sectionId,
-                    title: section.title,
-                    items: (section.items ?? []).map(mapDiscoverDay)
-                )
+                DiscoverSection(id: section.sectionId,
+                                title: section.title,
+                                items: (section.items ?? []).map(mapDiscoverDay))
             },
             weeklyTop: (dto.weeklyTop ?? []).map(mapDiscoverDay)
+        )
+    }
+
+    static func sectionPage(from dto: DiscoverSectionPageDTO) -> DiscoverSectionPage {
+        DiscoverSectionPage(
+            title: dto.section?.title ?? "",
+            page: WorkoutPage(items: (dto.items ?? []).map(mapDiscoverDay),
+                              page: dto.page ?? 1,
+                              totalPages: dto.totalPages ?? 1)
         )
     }
 
@@ -289,4 +327,17 @@ struct DiscoverSection: Identifiable {
     let id: Int
     let title: String
     let items: [WorkoutDay]
+}
+
+/// One page of a paged workout list, shared by the category and weekly-top screens.
+struct WorkoutPage {
+    let items: [WorkoutDay]
+    let page: Int
+    let totalPages: Int
+}
+
+/// One page of a section's listing, plus the server's own name for the section.
+struct DiscoverSectionPage {
+    let title: String
+    let page: WorkoutPage
 }

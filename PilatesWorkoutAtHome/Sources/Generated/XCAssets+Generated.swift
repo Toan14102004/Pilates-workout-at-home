@@ -76,6 +76,12 @@ internal enum Asset {
       internal static let saleTag = ImageAsset(name: "sale_tag")
       internal static let xmark = ImageAsset(name: "xmark")
     }
+    internal enum Discover {
+      internal static let jewelry = ImageAsset(name: "jewelry")
+      internal static let lockBlack = ImageAsset(name: "lockBlack")
+      internal static let lockWhite = ImageAsset(name: "lockWhite")
+      internal static let video = ImageAsset(name: "video")
+    }
     internal enum Iap {
       internal static let noAds = ImageAsset(name: "noAds")
       internal static let unlock = ImageAsset(name: "unlock")
@@ -106,6 +112,7 @@ internal enum Asset {
       internal static let starEnable = ImageAsset(name: "starEnable")
       internal static let thankFeedback = ImageAsset(name: "thankFeedback")
     }
+    internal static let plan = ImageAsset(name: "plan")
     internal enum TabBar {
       internal enum Normal {
         internal static let discoverNormal = ImageAsset(name: "discoverNormal")
@@ -120,7 +127,6 @@ internal enum Asset {
         internal static let progressSelected = ImageAsset(name: "progressSelected")
       }
     }
-    internal static let plan = ImageAsset(name: "plan")
   }
   internal enum Image {
     internal enum Premium {
