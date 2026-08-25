@@ -113,11 +113,13 @@ extension ExerciseDetailView {
             isEditingDuration = false
         }
 
-        /// Duration overrides stay on device: `PUT /workouts/{id}/progress` needs a deviceId
-        /// registered through the secured `POST /users`, which the app cannot call yet.
+        /// Duration edits stay on the device -- the API has no endpoint that accepts one, so the
+        /// value is stored locally and reapplied whenever the workout is loaded again.
         func save() {
             guard exercises.indices.contains(currentIndex) else { return }
+            let exerciseId = exercises[currentIndex].id
             exercises[currentIndex].durationSeconds = draftDurationSeconds
+            localStorageService.exerciseDurationOverrides[exerciseId] = draftDurationSeconds
             isEditingDuration = false
         }
 

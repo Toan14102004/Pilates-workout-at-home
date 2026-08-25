@@ -56,7 +56,7 @@ struct PracticeHomeView: View {
                     ForEach(Array(viewModel.plans.enumerated()), id: \.element.id) { index, plan in
                         PlanHeroCard(
                             imageUrl: plan.coverImageUrl,
-                            title: plan.title,
+                            title: viewModel.cardTitle(for: plan),
                             durationText: plan.durationText,
                             exercisesText: plan.exercisesText,
                             fallbackText: plan.fallbackText,

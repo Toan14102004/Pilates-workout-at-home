@@ -54,30 +54,8 @@ extension PracticeHomeView {
                 plans = programs
                 challenges = discover.sections.first?.items ?? []
                 justForYou = discover.weeklyTop
-                enrichVisiblePlans()
             }
             .store(in: &cancellables)
-        }
-
-        /// `/workout-programs` returns no duration or exercise count, but the card is designed to
-        /// show "11 Min  12 Exercises". Those come from the program's first day, so the few cards
-        /// actually on screen are topped up with their detail call; the rest keep the "N Days"
-        /// fallback until the list endpoint carries the fields.
-        private static let enrichedPlanCount = 3
-
-        private func enrichVisiblePlans() {
-            for plan in plans.prefix(Self.enrichedPlanCount) {
-                workoutService.program(id: plan.id)
-                    .receive(on: DispatchQueue.main)
-                    .sink { _ in
-                        // A failure here only costs the metrics line, so the card keeps its fallback.
-                    } receiveValue: { [weak self] detail in
-                        guard let self,
-                              let index = plans.firstIndex(where: { $0.id == detail.id }) else { return }
-                        plans[index] = detail
-                    }
-                    .store(in: &cancellables)
-            }
         }
 
         var hasStartedPlan: Bool { localStorageService.currentWorkoutDayId != nil }
@@ -85,7 +63,22 @@ extension PracticeHomeView {
         var planButtonTitle: String { hasStartedPlan ? "Continue" : "Start now" }
 
         func buttonTitle(for plan: WorkoutPlan) -> String {
-            plan.id == localStorageService.currentProgramId ? "Continue" : "Start now"
+            isInProgress(plan) ? "Continue" : "Start now"
+        }
+
+        /// Once a plan is under way the card names the day being worked on rather than the plan,
+        /// per the design's note on the main screen.
+        func cardTitle(for plan: WorkoutPlan) -> String {
+            guard isInProgress(plan),
+                  let dayId = localStorageService.currentWorkoutDayId,
+                  let day = plan.days.first(where: { $0.id == dayId })
+            else { return plan.title }
+
+            return "DAY \(day.dayNumber)"
+        }
+
+        private func isInProgress(_ plan: WorkoutPlan) -> Bool {
+            plan.id == localStorageService.currentProgramId
         }
 
         func openPlan(_ plan: WorkoutPlan) {
