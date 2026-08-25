@@ -159,7 +159,7 @@ struct WorkoutSettingsSheet: View {
                             }
                             Spacer()
                             if track.id == viewModel.settings.selectedTrackId {
-                                Asset.Icon.Commo.checkmarkCircle.image.toIcon(Layout.Icon.small)
+                                Asset.Icon.Commo.checkmarkCircle.image.toIcon(Layout.Icon.large)
                             }
                         }
                         .padding(Layout.Spacing.s)

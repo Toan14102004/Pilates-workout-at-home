@@ -38,7 +38,7 @@ struct WorkoutExerciseRow: View {
 
                 if isCompleted {
                     Asset.Icon.Commo.checkmarkCircle.image
-                        .toIcon(Layout.Icon.small)
+                        .toIcon(Layout.Icon.large)
                 }
             }
         }
