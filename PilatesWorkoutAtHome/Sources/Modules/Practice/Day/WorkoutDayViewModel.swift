@@ -13,6 +13,7 @@ extension WorkoutDayView {
         @Navigation var navigator
         @Injected var localStorageService: LocalStorageService
         @Injected var workoutService: WorkoutService
+        @Injected var progressStore: WorkoutProgressStore
 
         @Published var coordinator = Coordinator()
         @Published var showSettings = false
@@ -25,6 +26,12 @@ extension WorkoutDayView {
 
         init(workoutId: String) {
             self.workoutId = workoutId
+
+            // The session player writes progress; this screen renders it, so it has to redraw when
+            // the store changes rather than only when its own published properties do.
+            progressStore.objectWillChange
+                .sink { [weak self] _ in self?.objectWillChange.send() }
+                .store(in: &cancellables)
         }
 
         func loadIfNeeded() {
@@ -52,9 +59,11 @@ extension WorkoutDayView {
 
         var exercises: [WorkoutExercise] { day?.exercises ?? [] }
 
-        var completedExerciseIds: Set<String> { Set(localStorageService.completedExerciseIds) }
+        func isCompleted(_ exercise: WorkoutExercise) -> Bool {
+            progressStore.isExerciseCompleted(exercise.id)
+        }
 
-        func isCompleted(_ exercise: WorkoutExercise) -> Bool { completedExerciseIds.contains(exercise.id) }
+        var completedCount: Int { progressStore.completedCount(in: exercises) }
 
         var hasStarted: Bool { exercises.contains { isCompleted($0) } }
 
@@ -70,17 +79,14 @@ extension WorkoutDayView {
             ))
         }
 
-        // TODO: this should launch the Flow Practice session player once it's built; for now it
-        // opens the first pending exercise's detail view as a reasonable stand-in entry point.
         func startOrContinue() {
-            guard let exercise = firstPendingExercise else { return }
-            openExercise(exercise)
+            guard !exercises.isEmpty else { return }
+            localStorageService.currentWorkoutDayId = workoutId
+            navigator.push(ContentView.Coordinator.Navigation.workoutSession(workoutId: workoutId))
         }
 
         func restart() {
-            let ids = Set(exercises.map(\.id))
-            localStorageService.completedExerciseIds.removeAll { ids.contains($0) }
-            localStorageService.completedWorkoutIds.removeAll { $0 == workoutId }
+            progressStore.reset(workoutId: workoutId, exercises: exercises)
         }
 
         func openSettings() {

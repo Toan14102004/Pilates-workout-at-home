@@ -34,6 +34,7 @@ struct PreviewModifier: ViewModifier {
                         Dependency { SubscriptionManager() }
                         Dependency { GitHubDataService() }
                         Dependency { WorkoutService() }
+                        Dependency { WorkoutProgressStore() }
                         Dependency { AdsManager() }
                         Dependency { AnalyticsService() }
                     }

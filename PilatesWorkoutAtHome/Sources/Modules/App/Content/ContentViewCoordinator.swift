@@ -21,6 +21,7 @@ extension ContentView {
       case workoutSchedule(programId: String)
       case workoutDay(workoutId: String)
       case exerciseDetail(workoutId: String, exerciseId: String)
+      case workoutSession(workoutId: String)
     }
 
     var alert: Alert?
