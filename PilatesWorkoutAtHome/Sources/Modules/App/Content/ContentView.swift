@@ -12,20 +12,39 @@ enum Tab: CaseIterable {
 
     var title: String {
         switch self {
-        case .practice: "Practice"
+        case .practice: "Pilates Workout"
         case .discover: "Discover"
         case .progress: "Progress"
         case .profile: "Profile"
         }
     }
 
-    // TODO: swap for the real icons exported from Figma once available.
-    var systemIcon: String {
+    /// Short label for the tab bar item — `title` is the full header text ("Pilates Workout"),
+    /// which is too long to sit under a tab bar icon next to "Discover"/"Progress"/"Profile".
+    var tabLabel: String {
         switch self {
-        case .practice: "figure.pilates"
-        case .discover: "safari.fill"
-        case .progress: "chart.bar.fill"
-        case .profile: "person.fill"
+        case .practice: "Plan"
+        case .discover: "Discover"
+        case .progress: "Progress"
+        case .profile: "Profile"
+        }
+    }
+
+    var normalIcon: ImageAsset {
+        switch self {
+        case .practice: Asset.Icon.TabBar.Normal.planNormal
+        case .discover: Asset.Icon.TabBar.Normal.discoverNormal
+        case .progress: Asset.Icon.TabBar.Normal.progressNormal
+        case .profile: Asset.Icon.TabBar.Normal.profileNormal
+        }
+    }
+
+    var selectedIcon: ImageAsset {
+        switch self {
+        case .practice: Asset.Icon.TabBar.Selected.planSelected
+        case .discover: Asset.Icon.TabBar.Selected.discoverSelected
+        case .progress: Asset.Icon.TabBar.Selected.progressSelected
+        case .profile: Asset.Icon.TabBar.Selected.profileSelected
         }
     }
 }
@@ -42,9 +61,15 @@ struct ContentView: View {
 
             TabView(selection: $currentTab) {
                 ForEach(Tab.allCases, id: \.self) { tab in
-                    // TODO: replace with real screens as each flow lands (see 7-day sprint plan).
-                    placeholderContent(for: tab)
-                        .tag(tab)
+                    Group {
+                        if tab == .practice {
+                            PracticeHomeView()
+                        } else {
+                            // TODO: replace with real screens as each flow lands (see 7-day sprint plan).
+                            placeholderContent(for: tab)
+                        }
+                    }
+                    .tag(tab)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -61,6 +86,14 @@ struct ContentView: View {
                 SettingView(viewModel: .init())
             case .languageView:
                 LanguageView(viewModel: .init())
+            case let .workoutSchedule(programId):
+                WorkoutScheduleView(programId: programId)
+            case let .workoutDay(workoutId):
+                WorkoutDayView(workoutId: workoutId)
+            case let .exerciseDetail(workoutId, exerciseId):
+                ExerciseDetailView(workoutId: workoutId, initialExerciseId: exerciseId)
+            case let .workoutSession(workoutId):
+                WorkoutSessionView(workoutId: workoutId)
             }
         }
         .popup(item: $viewModel.coordinator.alert) { item in
@@ -107,17 +140,6 @@ struct ContentView: View {
                         .toIcon(28.iPad(32))
                 }
             }
-
-            Button {
-                viewModel.openLanguageView()
-            } label: {
-                Text(languageManager.currentLanguageCode.uppercased())
-                    .font(FontFamily.Inter.bold.font(size: Layout.Text.footnote))
-                    .foregroundStyle(Asset.Color.textPrimary.color)
-                    .padding(.horizontal, Layout.Spacing.xs)
-                    .padding(.vertical, Layout.Spacing.xxs)
-                    .overlay(RoundedRectangle(cornerRadius: Layout.CornerRadius.small).stroke(Asset.Color.borderPrimary.color, lineWidth: 1))
-            }
         }
         .frame(height: Layout.Button.largeHeight)
         .padding(.horizontal, Layout.Spacing.m)
@@ -129,8 +151,10 @@ struct ContentView: View {
     func placeholderContent(for tab: Tab) -> some View {
         VStack(spacing: Layout.Spacing.s) {
             Spacer()
-            Image(systemName: tab.systemIcon)
-                .font(.system(size: 40))
+            tab.normalIcon.image
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 40, height: 40)
                 .foregroundStyle(Asset.Color.textBrandPrimary.color)
             Text("\(tab.title) screen")
                 .font(FontFamily.Inter.bold.font(size: Layout.Text.title3))
@@ -153,9 +177,11 @@ struct ContentView: View {
                     currentTab = tab
                 } label: {
                     VStack(spacing: Layout.Spacing.xxs) {
-                        Image(systemName: tab.systemIcon)
-                            .font(.system(size: Layout.Icon.xs))
-                        Text(tab.title)
+                        (currentTab == tab ? tab.selectedIcon : tab.normalIcon).image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: Layout.Icon.xs, height: Layout.Icon.xs)
+                        Text(tab.tabLabel)
                             .font(FontFamily.Inter.medium.font(size: Layout.Text.caption2))
                     }
                     .foregroundStyle(

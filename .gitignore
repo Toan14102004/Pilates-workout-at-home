@@ -71,3 +71,5 @@ buildServer.json
 .claude/
 CLAUDE.md
 AGENTS.md
+# Figma response cache (Tools/figma.py)
+.figma-cache/

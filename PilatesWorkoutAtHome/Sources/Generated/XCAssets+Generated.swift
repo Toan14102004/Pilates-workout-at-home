@@ -106,6 +106,21 @@ internal enum Asset {
       internal static let starEnable = ImageAsset(name: "starEnable")
       internal static let thankFeedback = ImageAsset(name: "thankFeedback")
     }
+    internal enum TabBar {
+      internal enum Normal {
+        internal static let discoverNormal = ImageAsset(name: "discoverNormal")
+        internal static let planNormal = ImageAsset(name: "planNormal")
+        internal static let profileNormal = ImageAsset(name: "profileNormal")
+        internal static let progressNormal = ImageAsset(name: "progressNormal")
+      }
+      internal enum Selected {
+        internal static let discoverSelected = ImageAsset(name: "discoverSelected")
+        internal static let planSelected = ImageAsset(name: "planSelected")
+        internal static let profileSelected = ImageAsset(name: "profileSelected")
+        internal static let progressSelected = ImageAsset(name: "progressSelected")
+      }
+    }
+    internal static let plan = ImageAsset(name: "plan")
   }
   internal enum Image {
     internal enum Premium {
