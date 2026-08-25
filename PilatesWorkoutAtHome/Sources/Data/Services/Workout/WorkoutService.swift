@@ -64,6 +64,18 @@ final class WorkoutService {
             .eraseToAnyPublisher()
     }
 
+    /// Every workout in one Discover section, behind the "View all" on the Challenge carousel.
+    func discoverSection(id: Int, page: Int = 1, limit: Int = 20)
+        -> AnyPublisher<DiscoverSectionPage, NetworkError>
+    {
+        networkService
+            .get(endpoint: "/workouts/discover/sections/\(id)",
+                 parameters: ["page": page, "limit": limit],
+                 responseType: APIResponse<DiscoverSectionPageDTO>.self)
+            .map { Self.discoverPage(from: $0.data) }
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Exercises
 
     /// Full instructions and media for one exercise. `workoutId` lets the server scope the
@@ -253,6 +265,15 @@ private extension WorkoutService {
         )
     }
 
+    static func discoverPage(from dto: DiscoverSectionPageDTO) -> DiscoverSectionPage {
+        DiscoverSectionPage(
+            items: (dto.items ?? []).map(mapDiscoverDay),
+            page: dto.page ?? 1,
+            totalPages: dto.totalPages ?? 1,
+            totalItems: dto.totalItems ?? 0
+        )
+    }
+
     static func discoverContent(from dto: DiscoverDTO) -> DiscoverContent {
         DiscoverContent(
             sections: (dto.sections ?? []).map { section in
@@ -283,6 +304,15 @@ struct DiscoverContent {
     let weeklyTop: [WorkoutDay]
 
     static let empty = DiscoverContent(sections: [], weeklyTop: [])
+}
+
+struct DiscoverSectionPage {
+    let items: [WorkoutDay]
+    let page: Int
+    let totalPages: Int
+    let totalItems: Int
+
+    var hasMore: Bool { page < totalPages }
 }
 
 struct DiscoverSection: Identifiable {

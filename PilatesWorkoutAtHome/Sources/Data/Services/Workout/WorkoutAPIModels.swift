@@ -205,6 +205,15 @@ struct DiscoverSectionDTO: Codable {
     let items: [DiscoverItemDTO]?
 }
 
+/// `/workouts/discover/sections/{id}` -- one section's full, paged list.
+struct DiscoverSectionPageDTO: Codable {
+    let items: [DiscoverItemDTO]?
+    let page: Int?
+    let limit: Int?
+    let totalItems: Int?
+    let totalPages: Int?
+}
+
 struct DiscoverItemDTO: Codable {
     let workoutId: String
     let name: String

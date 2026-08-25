@@ -74,7 +74,7 @@ struct PracticeHomeView: View {
 
     private var challengeSection: some View {
         VStack(alignment: .leading, spacing: Layout.Spacing.s) {
-            sectionHeader(title: "Challenge")
+            sectionHeader(title: "Challenge", action: viewModel.openAllChallenges)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Layout.Spacing.s) {
@@ -111,16 +111,18 @@ struct PracticeHomeView: View {
         }
     }
 
-    private func sectionHeader(title: String) -> some View {
+    private func sectionHeader(title: String, action: (() -> Void)? = nil) -> some View {
         HStack {
             Text(title)
                 .font(.custom("Didot-Bold", size: 18))
                 .foregroundStyle(Asset.Color.textPrimary.color)
             Spacer()
-            Button("View all") {}
-                .font(Typography.labelMedium)
-                .foregroundStyle(Asset.Color.mainColor.color)
-                .underline()
+            if let action {
+                Button("View all", action: action)
+                    .font(Typography.labelMedium)
+                    .foregroundStyle(Asset.Color.mainColor.color)
+                    .underline()
+            }
         }
     }
 }

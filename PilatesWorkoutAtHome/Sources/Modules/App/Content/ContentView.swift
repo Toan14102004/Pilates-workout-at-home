@@ -94,6 +94,8 @@ struct ContentView: View {
                 ExerciseDetailView(workoutId: workoutId, initialExerciseId: exerciseId)
             case let .workoutSession(workoutId):
                 WorkoutSessionView(workoutId: workoutId)
+            case let .discoverSection(sectionId, title):
+                DiscoverSectionView(sectionId: sectionId, title: title)
             }
         }
         .popup(item: $viewModel.coordinator.alert) { item in
