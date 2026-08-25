@@ -9,6 +9,8 @@ import Foundation
 
 struct WorkoutPhase: Identifiable {
     let id: String
-    let title: String
+    /// Nil for programs the API ships without phases; the schedule then lists days unsectioned.
+    let number: Int?
+    let name: String
     var days: [WorkoutDay]
 }

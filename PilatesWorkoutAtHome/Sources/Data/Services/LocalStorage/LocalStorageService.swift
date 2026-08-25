@@ -55,6 +55,8 @@ protocol UserDefaultService: AnyObject {
     var completedWorkoutIds: [String] { get set }
     var currentWorkoutDayId: String? { get set }
     var currentProgramId: String? { get set }
+    var exerciseDurationOverrides: [String: Int] { get set }
+    var workoutCompletedCounts: [String: Int] { get set }
 }
 
 private enum Keys {
@@ -104,6 +106,8 @@ private enum Keys {
     static let completedWorkoutIds = "completed_workout_ids"
     static let currentWorkoutDayId = "current_workout_day_id"
     static let currentProgramId = "current_program_id"
+    static let exerciseDurationOverrides = "exercise_duration_overrides"
+    static let workoutCompletedCounts = "workout_completed_counts"
 }
 
 class LocalStorageService: UserDefaultService {
@@ -239,4 +243,15 @@ class LocalStorageService: UserDefaultService {
 
     @ObjectUserDefaultWrapper(key: Keys.currentProgramId, defaultValue: nil)
     var currentProgramId: String?
+
+    /// Per-exercise duration edits, keyed by exerciseId. The API has no endpoint that accepts a
+    /// duration override, so these stay on the device.
+    @ObjectUserDefaultWrapper(key: Keys.exerciseDurationOverrides, defaultValue: [:])
+    var exerciseDurationOverrides: [String: Int]
+
+    /// How many exercises of each workout are done, keyed by workoutId. The schedule shows a
+    /// per-day percentage but only receives day summaries -- without exercise lists -- so the count
+    /// has to be recorded as the session runs.
+    @ObjectUserDefaultWrapper(key: Keys.workoutCompletedCounts, defaultValue: [:])
+    var workoutCompletedCounts: [String: Int]
 }

@@ -27,7 +27,7 @@ struct APIItems<T: Codable>: Codable {
 // MARK: - Programs
 
 struct ProgramSummaryDTO: Codable {
-    let id: String
+    let programId: String
     let name: String
     let description: String?
     let level: String?
@@ -36,12 +36,10 @@ struct ProgramSummaryDTO: Codable {
     let restDayCount: Int?
     let coverImagePath: String?
     let categories: [String]?
-
-    enum CodingKeys: String, CodingKey {
-        case id = "_id"
-        case name, description, level, dayCount, workoutDayCount, restDayCount
-        case coverImagePath, categories
-    }
+    /// Added by the backend so the plan card can show "15 Min - 29 Exercises" without a second
+    /// call per card.
+    let durationSeconds: Int?
+    let exerciseCount: Int?
 }
 
 struct ProgramDetailDTO: Codable {
@@ -54,14 +52,17 @@ struct ProgramDetailDTO: Codable {
     let workoutDayCount: Int?
     let restDayCount: Int?
     let categories: [String]?
+    let durationSeconds: Int?
+    let exerciseCount: Int?
     let phases: [ProgramPhaseDTO]?
     let days: [ProgramDayDTO]?
 }
 
 struct ProgramPhaseDTO: Codable {
     let phaseNumber: Int?
-    let title: String?
     let name: String?
+    let startDay: Int?
+    let endDay: Int?
 }
 
 struct ProgramDayDTO: Codable {
@@ -82,6 +83,7 @@ struct ProgramDayWorkoutDTO: Codable {
     let durationMinutes: Int?
     let exerciseCount: Int?
     let categories: [String]?
+    let calories: Double?
 }
 
 // MARK: - Workouts
@@ -96,12 +98,13 @@ struct WorkoutDetailDTO: Codable {
     let exerciseCount: Int?
     let imagePath: String?
     let categories: [String]?
+    let calories: Double?
     let exercises: [WorkoutExerciseItemDTO]?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case name, description, level, dayNumber, estimatedDurationSeconds
-        case exerciseCount, imagePath, categories, exercises
+        case exerciseCount, imagePath, categories, calories, exercises
     }
 }
 

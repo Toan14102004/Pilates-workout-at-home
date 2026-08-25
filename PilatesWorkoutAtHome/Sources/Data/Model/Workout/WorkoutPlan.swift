@@ -15,6 +15,9 @@ struct WorkoutPlan: Identifiable {
     let level: String
     let coverImageUrl: URL?
     let dayCount: Int
+    /// Straight from the list endpoint, so the card needs no follow-up request.
+    let durationSeconds: Int
+    let exerciseCount: Int
     var phases: [WorkoutPhase]
 
     var days: [WorkoutDay] { phases.flatMap(\.days) }
@@ -23,12 +26,16 @@ struct WorkoutPlan: Identifiable {
 
     var firstWorkoutDay: WorkoutDay? { days.first { !$0.isRestDay } }
 
-    /// The design shows duration and exercise count as two separate items. Both come from the
-    /// program's first workout day, which only `/workout-programs/{id}` returns -- the list
-    /// endpoint has no duration or exercise count, so these are nil until the detail is loaded.
-    var durationText: String? { firstWorkoutDay.map { "\($0.netDurationMinutes) Min" } }
+    /// The design shows duration and exercise count as two separate items.
+    var durationText: String? {
+        guard durationSeconds > 0 else { return firstWorkoutDay.map { "\($0.netDurationMinutes) Min" } }
+        return "\(Int((Double(durationSeconds) / 60).rounded(.up))) Min"
+    }
 
-    var exercisesText: String? { firstWorkoutDay.map { "\($0.displayExerciseCount) Exercises" } }
+    var exercisesText: String? {
+        guard exerciseCount > 0 else { return firstWorkoutDay.map { "\($0.displayExerciseCount) Exercises" } }
+        return "\(exerciseCount) Exercises"
+    }
 
     var fallbackText: String { "\(totalDays) Days" }
 

@@ -14,6 +14,7 @@ import Foundation
 
 final class WorkoutService {
     @Injected var networkService: NetworkService
+    @Injected var localStorageService: LocalStorageService
 
     // MARK: - Programs
 
@@ -43,11 +44,13 @@ final class WorkoutService {
     /// One workout (a program day, or a standalone Discover workout) with its exercise list,
     /// each exercise already carrying its demo video URL.
     func workout(id: String) -> AnyPublisher<WorkoutDay, NetworkError> {
-        networkService
+        let overrides = localStorageService.exerciseDurationOverrides
+
+        return networkService
             .get(endpoint: "/workouts/\(id)",
                  parameters: nil,
                  responseType: APIResponse<WorkoutDetailDTO>.self)
-            .map { Self.mapWorkoutDay($0.data) }
+            .map { Self.mapWorkoutDay($0.data, overrides: overrides) }
             .eraseToAnyPublisher()
     }
 
@@ -87,12 +90,14 @@ private extension WorkoutService {
 
     static func mapPlanSummary(_ dto: ProgramSummaryDTO) -> WorkoutPlan {
         WorkoutPlan(
-            id: dto.id,
+            id: dto.programId,
             title: dto.name,
             subtitle: dto.description ?? "",
             level: readable(level: dto.level),
             coverImageUrl: url(dto.coverImagePath),
             dayCount: dto.dayCount ?? 0,
+            durationSeconds: dto.durationSeconds ?? 0,
+            exerciseCount: dto.exerciseCount ?? 0,
             phases: []
         )
     }
@@ -107,6 +112,8 @@ private extension WorkoutService {
             level: readable(level: dto.level),
             coverImageUrl: url(dto.coverImageUrl),
             dayCount: dto.dayCount ?? days.count,
+            durationSeconds: dto.durationSeconds ?? 0,
+            exerciseCount: dto.exerciseCount ?? 0,
             phases: phases(for: days, declared: dto.phases, planName: dto.name)
         )
     }
@@ -122,14 +129,16 @@ private extension WorkoutService {
         let numbers = grouped.keys.compactMap { $0 }.sorted()
 
         guard !numbers.isEmpty else {
-            return days.isEmpty ? [] : [WorkoutPhase(id: "all", title: planName, days: days)]
+            // Programs without phases get a single unnamed group; the schedule omits the header
+            // rather than repeating the plan name over the only section.
+            return days.isEmpty ? [] : [WorkoutPhase(id: "all", number: nil, name: planName, days: days)]
         }
 
         return numbers.map { number in
-            let title = declared?.first { $0.phaseNumber == number }
-                .flatMap { $0.title ?? $0.name } ?? "Phase \(number)"
+            let name = declared?.first { $0.phaseNumber == number }?.name ?? ""
             return WorkoutPhase(id: "phase-\(number)",
-                                title: title,
+                                number: number,
+                                name: name,
                                 days: grouped[number] ?? [])
         }
     }
@@ -148,16 +157,16 @@ private extension WorkoutService {
             imageUrl: url(workout?.imageUrl ?? fallbackImage),
             durationSeconds: workout?.durationSeconds ?? 0,
             exerciseCount: workout?.exerciseCount ?? 0,
-            kcal: nil,
+            kcal: workout?.calories,
             exercises: []
         )
     }
 
-    static func mapWorkoutDay(_ dto: WorkoutDetailDTO) -> WorkoutDay {
+    static func mapWorkoutDay(_ dto: WorkoutDetailDTO, overrides: [String: Int] = [:]) -> WorkoutDay {
         let image = url(dto.imagePath)
         let exercises = (dto.exercises ?? [])
             .sorted { $0.order < $1.order }
-            .map { mapExerciseRow($0, fallbackImage: image) }
+            .map { mapExerciseRow($0, fallbackImage: image, overrides: overrides) }
 
         return WorkoutDay(
             id: dto.id,
@@ -170,7 +179,7 @@ private extension WorkoutService {
             imageUrl: image,
             durationSeconds: dto.estimatedDurationSeconds ?? 0,
             exerciseCount: dto.exerciseCount ?? exercises.count,
-            kcal: nil,
+            kcal: dto.calories,
             exercises: exercises
         )
     }
@@ -192,14 +201,21 @@ private extension WorkoutService {
         )
     }
 
-    static func mapExerciseRow(_ dto: WorkoutExerciseItemDTO, fallbackImage: URL?) -> WorkoutExercise {
-        WorkoutExercise(
-            id: dto.exercise?.id ?? "order-\(dto.order)",
+    static func mapExerciseRow(_ dto: WorkoutExerciseItemDTO,
+                               fallbackImage: URL?,
+                               overrides: [String: Int]) -> WorkoutExercise
+    {
+        let id = dto.exercise?.id ?? "order-\(dto.order)"
+
+        return WorkoutExercise(
+            id: id,
             order: dto.order,
             name: dto.nameSnapshot ?? dto.exercise?.name ?? "",
             imageUrl: fallbackImage,
             videoUrl: url(dto.videoUrlSnapshot ?? dto.exercise?.playableVideoUrl),
-            durationSeconds: dto.duration ?? 0,
+            // A saved edit wins over the server's figure, so the Day list, the detail screen and
+            // the net-duration total all agree on what the user chose.
+            durationSeconds: overrides[id] ?? dto.duration ?? 0,
             restSeconds: dto.restSeconds ?? 0,
             howTo: [],
             commonMistakes: [],
