@@ -143,6 +143,6 @@ struct WorkoutDayView: View {
         }
         .padding(.horizontal, Layout.Spacing.m)
         .padding(.top, Layout.Spacing.s)
-        .padding(.bottom, UIApplication.shared.safeAreaBottom + Layout.Spacing.s)
+//        .padding(.bottom, UIApplication.shared.safeAreaBottom + Layout.Spacing.s)
     }
 }
