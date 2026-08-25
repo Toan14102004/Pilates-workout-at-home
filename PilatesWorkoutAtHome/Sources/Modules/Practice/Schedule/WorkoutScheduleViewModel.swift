@@ -19,6 +19,7 @@ extension WorkoutScheduleView {
         @Navigation var navigator
         @Injected var localStorageService: LocalStorageService
         @Injected var workoutService: WorkoutService
+        @Injected var progressStore: WorkoutProgressStore
 
         @Published var coordinator = Coordinator()
         @Published var plan: WorkoutPlan?
@@ -30,6 +31,10 @@ extension WorkoutScheduleView {
 
         init(programId: String) {
             self.programId = programId
+
+            progressStore.objectWillChange
+                .sink { [weak self] _ in self?.objectWillChange.send() }
+                .store(in: &cancellables)
         }
 
         func loadIfNeeded() {
@@ -70,11 +75,10 @@ extension WorkoutScheduleView {
             return Double(completedDaysCount) / Double(totalDays)
         }
 
-        /// A day counts as finished once it has been marked complete locally. Exercise-level
-        /// completion cannot be checked here -- the schedule endpoint returns day summaries
-        /// without exercise lists, and `PUT /workouts/{id}/progress` needs a registered device.
+        /// The schedule endpoint returns day summaries without exercise lists, so a day is judged
+        /// finished by the workout-level flag the session player sets.
         func isDayFinished(_ day: WorkoutDay) -> Bool {
-            localStorageService.completedWorkoutIds.contains(day.id)
+            progressStore.isWorkoutCompleted(day.id)
         }
 
         func state(for day: WorkoutDay) -> WorkoutDayState {
@@ -86,6 +90,12 @@ extension WorkoutScheduleView {
         func phaseProgress(_ phase: WorkoutPhase) -> Double {
             guard !phase.days.isEmpty else { return 0 }
             return Double(phase.days.filter(isDayFinished).count) / Double(phase.days.count)
+        }
+
+        /// How far through one day the user got, for the inline bar the design shows on days that
+        /// were started but not finished.
+        func dayProgress(_ day: WorkoutDay) -> Double {
+            progressStore.progressFraction(workoutId: day.id, exerciseCount: day.exerciseCount)
         }
 
         func openDay(_ day: WorkoutDay) {

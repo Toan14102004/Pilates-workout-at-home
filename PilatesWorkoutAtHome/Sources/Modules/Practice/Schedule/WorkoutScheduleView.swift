@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+/// The program's day-by-day schedule: a timeline of days grouped into phases, with the day the
+/// user is on highlighted.
 struct WorkoutScheduleView: View {
     @StateObject private var viewModel: ViewModel
 
@@ -30,14 +32,16 @@ struct WorkoutScheduleView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Layout.Spacing.l) {
-                    PreloadedNativeAdsView(adKey: .practiceCompact, style: .contentCard, height: NativeAdViewStyle.contentCard.height)
+                    PreloadedNativeAdsView(adKey: .practiceCompact,
+                                           style: .contentCard,
+                                           height: NativeAdViewStyle.contentCard.height)
 
                     if viewModel.isLoading, viewModel.plan == nil {
                         ProgressView().frame(maxWidth: .infinity).padding(.top, Layout.Spacing.xxl)
                     } else if let errorMessage = viewModel.errorMessage, viewModel.plan == nil {
                         WorkoutErrorView(message: errorMessage, retry: viewModel.load)
                     } else if let plan = viewModel.plan {
-                        progressBar
+                        overallProgress
 
                         ForEach(plan.phases) { phase in
                             phaseSection(phase)
@@ -55,106 +59,175 @@ struct WorkoutScheduleView: View {
         .trackScreen("workoutScheduleVC")
     }
 
-    private var progressBar: some View {
-        VStack(alignment: .leading, spacing: Layout.Spacing.xxs) {
-            HStack {
-                Spacer()
-                Text(viewModel.progressLabel)
-                    .font(Typography.captionMedium)
-                    .foregroundStyle(Asset.Color.textSecondary.color)
-            }
-            Capsule()
-                .fill(Asset.Color.bgSecondary.color)
-                .frame(height: 4)
-                .overlay(alignment: .leading) {
-                    GeometryReader { geometry in
-                        Capsule()
-                            .fill(Asset.Color.mainColor.color)
-                            .frame(width: geometry.size.width * viewModel.progressFraction)
-                    }
-                }
+    private var overallProgress: some View {
+        VStack(alignment: .leading, spacing: Layout.Spacing.xs) {
+            Text(viewModel.progressLabel)
+                .font(Typography.captionMedium)
+                .foregroundStyle(Asset.Color.textSecondary.color)
+
+            progressBar(viewModel.progressFraction, height: 4)
         }
     }
 
+    private func progressBar(_ fraction: Double, height: CGFloat) -> some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Asset.Color.bgSecondary.color)
+                Capsule()
+                    .fill(Asset.Color.mainColor.color)
+                    .frame(width: max(geometry.size.width * fraction, fraction > 0 ? 6 : 0))
+            }
+        }
+        .frame(height: height)
+    }
+
+    // MARK: - Phase
+
+    @ViewBuilder
     private func phaseSection(_ phase: WorkoutPhase) -> some View {
         VStack(alignment: .leading, spacing: Layout.Spacing.s) {
-            HStack {
-                Text(phase.title)
-                    .font(Typography.subtitleSmall)
-                    .foregroundStyle(Asset.Color.textPrimary.color)
-                Spacer()
-                Text("\(Int(viewModel.phaseProgress(phase) * 100))%")
-                    .font(Typography.captionMedium)
-                    .foregroundStyle(Asset.Color.textSecondary.color)
-            }
-
-            VStack(spacing: Layout.Spacing.m) {
-                ForEach(phase.days) { day in
-                    dayRow(day)
-                }
-            }
-        }
-    }
-
-    private func dayRow(_ day: WorkoutDay) -> some View {
-        let state = viewModel.state(for: day)
-
-        return Button {
-            viewModel.openDay(day)
-        } label: {
-            HStack(spacing: Layout.Spacing.s) {
-                RemoteImageView(url: day.imageUrl)
-                    .frame(width: 48, height: 48)
-                    .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.medium))
-                    .overlay {
-                        if state == .current {
-                            RoundedRectangle(cornerRadius: Layout.CornerRadius.medium)
-                                .stroke(Asset.Color.mainColor.color, lineWidth: 2)
-                        }
-                    }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(day.title)
-                        .font(Typography.bodyLarge)
+            // Programs the API ships without phases get no header: with a single section it would
+            // just restate the progress line directly above it.
+            if let number = phase.number {
+                HStack(spacing: Layout.Spacing.xs) {
+                    Text("Phase \(number)")
+                        .font(Typography.subtitleSmall)
                         .foregroundStyle(Asset.Color.textPrimary.color)
-                    Text(subtitle(for: day, state: state))
+
+                    Text(phase.name)
+                        .font(Typography.bodySmall)
+                        .foregroundStyle(Asset.Color.textSecondary.color)
+
+                    Spacer()
+
+                    Text("\(Int(viewModel.phaseProgress(phase) * 100))%")
                         .font(Typography.captionMedium)
                         .foregroundStyle(Asset.Color.textSecondary.color)
                 }
+            }
 
-                Spacer()
-
-                trailingIcon(for: state)
+            VStack(spacing: 0) {
+                ForEach(Array(phase.days.enumerated()), id: \.element.id) { position, day in
+                    dayRow(day, showsConnector: position < phase.days.count - 1)
+                }
             }
         }
-        .buttonStyle(.plain)
-        .disabled(day.isRestDay)
     }
 
-    private func subtitle(for day: WorkoutDay, state: WorkoutDayState) -> String {
-        if day.isRestDay { return "Rest day" }
-        return state == .finished ? "Finished!" : day.exerciseCountLabel
+    // MARK: - Day row
+
+    private func dayRow(_ day: WorkoutDay, showsConnector: Bool) -> some View {
+        let state = viewModel.state(for: day)
+        let fraction = viewModel.dayProgress(day)
+
+        return HStack(alignment: .top, spacing: Layout.Spacing.s) {
+            timeline(state: state, showsConnector: showsConnector)
+
+            Button {
+                viewModel.openDay(day)
+            } label: {
+                HStack(spacing: Layout.Spacing.s) {
+                    RemoteImageView(url: day.imageUrl)
+                        .frame(width: 44, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.medium))
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(day.title)
+                            .font(Typography.subtitleSmall)
+                            .foregroundStyle(Asset.Color.textPrimary.color)
+
+                        subtitle(for: day, state: state, fraction: fraction)
+                    }
+
+                    Spacer(minLength: Layout.Spacing.xs)
+
+                    trailing(for: state)
+                }
+                .padding(Layout.Spacing.s)
+                .background(state == .current ? Asset.Color.white.color : Color.clear)
+                .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large))
+                .overlay {
+                    if state == .current {
+                        RoundedRectangle(cornerRadius: Layout.CornerRadius.large)
+                            .stroke(Asset.Color.mainColor.color, lineWidth: 1.5)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            .disabled(day.isRestDay)
+        }
+        .padding(.bottom, Layout.Spacing.xs)
+    }
+
+    /// The connected circles running down the left edge.
+    private func timeline(state: WorkoutDayState, showsConnector: Bool) -> some View {
+        VStack(spacing: 0) {
+            ZStack {
+                switch state {
+                case .finished:
+                    Circle().fill(Asset.Color.mainColor.color)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(Asset.Color.white.color)
+                case .current:
+                    Circle().stroke(Asset.Color.mainColor.color, lineWidth: 2)
+                case .upcoming:
+                    Circle().stroke(Asset.Color.borderPrimary.color, lineWidth: 1.5)
+                }
+            }
+            .frame(width: 16, height: 16)
+            .padding(.top, Layout.Spacing.m)
+
+            if showsConnector {
+                Rectangle()
+                    .fill(Asset.Color.borderPrimary.color)
+                    .frame(width: 1.5)
+                    .frame(maxHeight: .infinity)
+            }
+        }
+        .frame(width: 16)
     }
 
     @ViewBuilder
-    private func trailingIcon(for state: WorkoutDayState) -> some View {
-        switch state {
-        case .finished:
-            Asset.Icon.Commo.checkmarkCircle.image.toIcon(Layout.Icon.medium)
-        case .current:
-            playGlyph.foregroundStyle(Asset.Color.white.color)
-                .frame(width: Layout.Icon.medium, height: Layout.Icon.medium)
-                .background(Asset.Color.mainColor.color)
-                .clipShape(Circle())
-        case .upcoming:
-            playGlyph.foregroundStyle(Asset.Color.mainColor.color)
-                .frame(width: Layout.Icon.medium, height: Layout.Icon.medium)
-                .overlay(Circle().stroke(Asset.Color.mainColor.color, lineWidth: 1.5))
+    private func subtitle(for day: WorkoutDay, state: WorkoutDayState, fraction: Double) -> some View {
+        if day.isRestDay {
+            caption("Rest day")
+        } else if state == .finished {
+            caption("Finished!")
+        } else if fraction > 0 {
+            // Started but unfinished days show how far in the user got.
+            HStack(spacing: Layout.Spacing.xs) {
+                progressBar(fraction, height: 3).frame(width: 90)
+                caption("\(Int(fraction * 100))%")
+            }
+        } else {
+            caption(day.exerciseCountLabel)
         }
     }
 
-    private var playGlyph: some View {
-        Text("▶")
-            .font(.system(size: 12))
+    private func caption(_ text: String) -> some View {
+        Text(text)
+            .font(Typography.captionMedium)
+            .foregroundStyle(Asset.Color.textSecondary.color)
+    }
+
+    @ViewBuilder
+    private func trailing(for state: WorkoutDayState) -> some View {
+        switch state {
+        case .finished:
+            Asset.Icon.Commo.checkmarkCircle.image.toIcon(Layout.Icon.medium)
+        case .current, .upcoming:
+            Image(systemName: "play.fill")
+                .font(.system(size: 11))
+                .foregroundStyle(state == .current ? Asset.Color.white.color : Asset.Color.mainColor.color)
+                .frame(width: Layout.Icon.medium, height: Layout.Icon.medium)
+                .background(state == .current ? Asset.Color.mainColor.color : Color.clear)
+                .clipShape(Circle())
+                .overlay {
+                    if state == .upcoming {
+                        Circle().stroke(Asset.Color.mainColor.color, lineWidth: 1.5)
+                    }
+                }
+        }
     }
 }
