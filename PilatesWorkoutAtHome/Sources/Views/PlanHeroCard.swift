@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-/// The wide gradient card in the "Your Plan" carousel: copy on the left, cover photo bleeding off
-/// the right edge, and a white pill CTA. Distinct from `WorkoutPlanCard`, which is the smaller
-/// photo-on-top card used by "Challenge".
+/// The wide card in the "Your Plan" carousel: the cover photo runs the full card, with the plan
+/// name, its metrics and a white pill CTA laid over the left side.
 ///
-/// Colours and metrics here are read off the Figma screenshot, not the file -- the Figma REST API
-/// is rate limited until 26/08, so treat them as close approximations to re-verify.
+/// Metrics come from Figma `2306:6247` → `Header Image`: 299×192 at r16, copy inset 12pt from the
+/// leading edge and 48pt from the top, 32pt between the text block and the button.
 struct PlanHeroCard: View {
     let imageUrl: URL?
     let title: String
@@ -20,132 +19,91 @@ struct PlanHeroCard: View {
     let exercisesText: String?
     let fallbackText: String
     let buttonTitle: String
-    /// Picks which gradient this card gets; the API carries no colour information.
-    let paletteIndex: Int
     let action: () -> Void
 
-    /// Leaves the next card peeking at the right edge, the way the design shows it.
+    /// 299pt on the 375pt design — the content column less the 44pt the next card peeks by.
     static var cardWidth: CGFloat {
         UIScreen.main.bounds.width - Layout.Spacing.m * 2 - 44
     }
 
-    static let cardHeight: CGFloat = 152
+    static let cardHeight: CGFloat = 192
+
+    /// The gap between cards in the carousel, per the design's 12pt auto-layout spacing.
+    static let cardSpacing: CGFloat = 12
 
     var body: some View {
-        ZStack(alignment: .leading) {
-            PlanCardPalette.gradient(for: paletteIndex)
+        ZStack(alignment: .topLeading) {
+            RemoteImageView(url: imageUrl)
+                .frame(width: Self.cardWidth, height: Self.cardHeight)
 
-            coverPhoto
-
-            sparkles
+            // The design's placeholder art is a pale illustration, so its dark copy reads fine over
+            // it. Real cover photos are arbitrary, so the copy column gets a light scrim; without
+            // one the title is unreadable on roughly half the API's images.
+            LinearGradient(
+                colors: [Asset.Color.white.color.opacity(0.85),
+                         Asset.Color.white.color.opacity(0.55),
+                         .clear],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(width: Self.cardWidth * 0.75)
 
             VStack(alignment: .leading, spacing: Layout.Spacing.xs) {
                 Text(title)
-                    .font(.custom("Didot-Bold", size: 21))
+                    .font(Typography.displayMedium)
                     .foregroundStyle(Asset.Color.textPrimary.color)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
 
                 metrics
 
-                Spacer(minLength: Layout.Spacing.xs)
+                // The design's gap is a flat 32pt under a single-line title. Anchoring the button
+                // to the bottom instead keeps it in the same place when a real plan name wraps.
+                Spacer(minLength: Layout.Spacing.s)
 
                 startButton
             }
-            .padding(Layout.Spacing.m)
-            .frame(width: Self.cardWidth * 0.58, alignment: .leading)
+            .frame(width: Self.cardWidth * 0.55, height: Self.cardHeight, alignment: .topLeading)
+            .padding(.leading, 12)
+            .padding(.top, 48)
+            .padding(.bottom, 32)
         }
         .frame(width: Self.cardWidth, height: Self.cardHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-    }
-
-    /// The API serves a rectangular photo where the design uses a cut-out model, so the left edge
-    /// is faded into the gradient instead of ending on a hard rectangle seam.
-    private var coverPhoto: some View {
-        HStack(spacing: 0) {
-            Spacer(minLength: 0)
-            RemoteImageView(url: imageUrl)
-                .frame(width: Self.cardWidth * 0.5, height: Self.cardHeight)
-                .mask(
-                    LinearGradient(
-                        colors: [.clear, .black, .black],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-        }
-    }
-
-    private var sparkles: some View {
-        HStack(spacing: 0) {
-            Spacer(minLength: 0)
-            VStack(spacing: Layout.Spacing.s) {
-                Image(systemName: "sparkle")
-                    .font(.system(size: 13))
-                    .foregroundStyle(Asset.Color.white.color.opacity(0.9))
-                Image(systemName: "sparkle")
-                    .font(.system(size: 8))
-                    .foregroundStyle(Asset.Color.white.color.opacity(0.7))
-                    .padding(.leading, Layout.Spacing.m)
-                Spacer(minLength: 0)
-            }
-            .padding(.top, Layout.Spacing.l)
-            .padding(.trailing, Self.cardWidth * 0.4)
-        }
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     @ViewBuilder
     private var metrics: some View {
         if let durationText, let exercisesText {
-            HStack(spacing: Layout.Spacing.s) {
+            HStack(spacing: 9) {
                 Text(durationText)
                 Text(exercisesText)
             }
-            .font(Typography.captionMedium)
+            .font(Typography.labelSmall)
             .foregroundStyle(Asset.Color.textPrimary.color)
         } else {
             Text(fallbackText)
-                .font(Typography.captionMedium)
+                .font(Typography.labelSmall)
                 .foregroundStyle(Asset.Color.textPrimary.color)
         }
     }
 
     private var startButton: some View {
         Button(action: action) {
-            HStack(spacing: Layout.Spacing.xs) {
+            HStack(spacing: 10) {
                 Text(buttonTitle)
-                    .font(Typography.labelMedium)
-                    .foregroundStyle(Asset.Color.textPrimary.color)
+                    .font(Typography.captionLarge)
+                    .foregroundStyle(Asset.Color.mainColor.color)
 
-                // TODO: swap for the real Figma play glyph once the Figma API quota returns.
                 Image(systemName: "play.fill")
                     .font(.system(size: 11))
                     .foregroundStyle(Asset.Color.mainColor.color)
+                    .frame(width: 16, height: 16)
             }
             .padding(.horizontal, Layout.Spacing.m)
             .padding(.vertical, Layout.Spacing.s)
             .background(Asset.Color.white.color)
-            .clipShape(Capsule())
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
-    }
-}
-
-/// Gradients for the plan carousel. The API returns no colour, so cards cycle through the palette
-/// by position -- matching the design, where consecutive cards alternate purple / blue.
-enum PlanCardPalette {
-    private static let pairs: [(String, String)] = [
-        ("#D7C6F3", "#EFE7FD"),
-        ("#C6DCF4", "#E6F0FC"),
-        ("#F8D3C6", "#FDEBE2"),
-        ("#CFEBDC", "#E9F7F0"),
-    ]
-
-    static func gradient(for index: Int) -> LinearGradient {
-        let pair = pairs[abs(index) % pairs.count]
-        return LinearGradient(
-            colors: [Color(hex: pair.0), Color(hex: pair.1)],
-            startPoint: .leading,
-            endPoint: .trailing
-        )
     }
 }

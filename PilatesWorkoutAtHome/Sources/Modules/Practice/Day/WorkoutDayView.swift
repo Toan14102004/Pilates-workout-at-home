@@ -26,7 +26,7 @@ struct WorkoutDayView: View {
                 HStack {
                     HeroOverlayButton(image: Asset.Icon.Commo.arrowLeft, action: viewModel.back)
                     Spacer()
-                    HeroOverlayTextButton(symbol: "⚙", action: viewModel.openSettings)
+                    HeroOverlaySettingsButton(action: viewModel.openSettings)
                 }
                 .padding(Layout.Spacing.m)
                 .padding(.top, UIApplication.shared.safeAreaTop)
@@ -35,7 +35,7 @@ struct WorkoutDayView: View {
             .ignoresSafeArea(edges: .top)
 
             ScrollView {
-                VStack(alignment: .leading, spacing: Layout.Spacing.l) {
+                VStack(alignment: .leading, spacing: Layout.Spacing.m) {
                     PreloadedNativeAdsView(adKey: .practiceCompact, style: .contentCard, height: NativeAdViewStyle.contentCard.height)
 
                     if viewModel.isLoading, viewModel.day == nil {
@@ -69,21 +69,21 @@ struct WorkoutDayView: View {
     private func content(_ day: WorkoutDay) -> some View {
         VStack(alignment: .leading, spacing: Layout.Spacing.xxs) {
             Text(day.dayNumber > 0 ? "Day \(day.dayNumber)" : day.title)
-                .font(.custom("Didot-Bold", size: 24))
+                .font(Typography.displayLarge)
                 .foregroundStyle(Asset.Color.textPrimary.color)
             Text(day.planName)
-                .font(Typography.bodySmall)
+                .font(Typography.bodyMedium)
                 .foregroundStyle(Asset.Color.textSecondary.color)
         }
 
         WorkoutStatsRow(day: day)
 
-        VStack(alignment: .leading, spacing: Layout.Spacing.m) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Exercises (\(day.displayExerciseCount))")
-                .font(Typography.subtitleSmall)
-                .foregroundStyle(Asset.Color.textPrimary.color)
+                .font(Typography.bodyLarge)
+                .foregroundStyle(Asset.Color.textSecondary.color)
 
-            VStack(spacing: Layout.Spacing.m) {
+            VStack(spacing: Layout.Spacing.s) {
                 ForEach(day.exercises) { exercise in
                     WorkoutExerciseRow(
                         imageUrl: exercise.imageUrl ?? day.imageUrl,
@@ -104,19 +104,22 @@ struct WorkoutDayView: View {
                     .font(Typography.bodyLarge)
                     .foregroundStyle(Asset.Color.mainColor.color)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, Layout.Spacing.m)
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Asset.Color.mainColor.color, lineWidth: 1.5))
+                    .frame(height: 46)
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(Asset.Color.mainColor.color, lineWidth: 1.5))
             }
 
             Button(viewModel.hasStarted ? "Continue" : "Start Now", action: viewModel.startOrContinue)
                 .font(Typography.bodyLarge)
                 .foregroundStyle(Asset.Color.white.color)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, Layout.Spacing.m)
+                .frame(height: 46)
                 .background(Asset.Color.mainColor.color)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
-        .padding(.horizontal, Layout.Spacing.m)
+        // The design insets the footer well past the content margin -- 296pt of button on a 375pt
+        // screen (Figma 2027:624 -> `button`).
+        .padding(.horizontal, Layout.footerInset)
         .padding(.top, Layout.Spacing.s)
 //        .padding(.bottom, UIApplication.shared.safeAreaBottom + Layout.Spacing.s)
     }

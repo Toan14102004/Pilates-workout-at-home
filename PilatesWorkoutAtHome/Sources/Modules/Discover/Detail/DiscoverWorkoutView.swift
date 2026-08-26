@@ -25,7 +25,7 @@ struct DiscoverWorkoutView: View {
             hero
 
             ScrollView {
-                VStack(alignment: .leading, spacing: Layout.Spacing.l) {
+                VStack(alignment: .leading, spacing: Layout.Spacing.m) {
                     if viewModel.isLoading, viewModel.day == nil {
                         ProgressView().frame(maxWidth: .infinity).padding(.top, Layout.Spacing.xxl)
                     } else if let errorMessage = viewModel.errorMessage, viewModel.day == nil {
@@ -78,7 +78,7 @@ struct DiscoverWorkoutView: View {
             HStack {
                 HeroOverlayButton(image: Asset.Icon.Commo.arrowLeft, action: viewModel.back)
                 Spacer()
-                HeroOverlayTextButton(symbol: "⚙", action: viewModel.openSettings)
+                HeroOverlaySettingsButton(action: viewModel.openSettings)
             }
             .padding(Layout.Spacing.m)
             .padding(.top, UIApplication.shared.safeAreaTop)
@@ -92,7 +92,7 @@ struct DiscoverWorkoutView: View {
     @ViewBuilder
     private func content(_ day: WorkoutDay) -> some View {
         Text(day.title)
-            .font(.custom("Didot-Bold", size: 24))
+            .font(Typography.displayMedium)
             .foregroundStyle(Asset.Color.textPrimary.color)
 
         WorkoutStatsRow(day: day)
@@ -101,10 +101,10 @@ struct DiscoverWorkoutView: View {
             description(day.summary)
         }
 
-        VStack(alignment: .leading, spacing: Layout.Spacing.m) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Exercises (\(day.displayExerciseCount))")
-                .font(Typography.subtitleSmall)
-                .foregroundStyle(Asset.Color.textPrimary.color)
+                .font(Typography.bodyLarge)
+                .foregroundStyle(Asset.Color.textSecondary.color)
 
             if viewModel.isUnlocked {
                 exerciseList(day)
@@ -118,7 +118,7 @@ struct DiscoverWorkoutView: View {
         VStack(alignment: .leading, spacing: Layout.Spacing.xs) {
             Text(text)
                 .font(Typography.bodySmall)
-                .foregroundStyle(Asset.Color.textSecondary.color)
+                .foregroundStyle(Asset.Color.textPrimary.color)
                 .lineLimit(viewModel.isDescriptionExpanded ? nil : viewModel.collapsedDescriptionLines)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -130,7 +130,7 @@ struct DiscoverWorkoutView: View {
     }
 
     private func exerciseList(_ day: WorkoutDay) -> some View {
-        VStack(spacing: Layout.Spacing.m) {
+        VStack(spacing: Layout.Spacing.s) {
             ForEach(day.exercises) { exercise in
                 WorkoutExerciseRow(
                     imageUrl: exercise.imageUrl ?? day.imageUrl,
@@ -144,7 +144,9 @@ struct DiscoverWorkoutView: View {
     }
 
     private var lockedList: some View {
-        VStack(spacing: Layout.Spacing.m) {
+        // Rows butt against each other and are separated by a hairline, per the design -- unlike
+        // the unlocked list, which is spaced.
+        VStack(spacing: 0) {
             ForEach(1 ... max(viewModel.lockedRowCount, 1), id: \.self) { position in
                 LockedExerciseRow(position: position, action: viewModel.requestUnlock)
             }
@@ -158,7 +160,7 @@ struct DiscoverWorkoutView: View {
             HStack(spacing: Layout.Spacing.s) {
                 if !viewModel.isUnlocked {
                     Asset.Icon.Discover.lockWhite.image
-                        .toIcon(Layout.Icon.small)
+                        .toIcon(24)
                 }
 
                 Text(viewModel.footerTitle)
@@ -166,11 +168,13 @@ struct DiscoverWorkoutView: View {
                     .foregroundStyle(Asset.Color.white.color)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, Layout.Spacing.m)
+            .frame(height: 48)
             .background(Asset.Color.mainColor.color)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
-        .padding(.horizontal, Layout.Spacing.m)
+        // The design centres a 296pt button on a 375pt screen rather than running it to the
+        // content margin (Figma 2092:2587 -> `button`).
+        .padding(.horizontal, Layout.footerInset)
         .padding(.top, Layout.Spacing.s)
     }
 }

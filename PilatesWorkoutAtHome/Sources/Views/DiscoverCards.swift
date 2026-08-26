@@ -16,7 +16,7 @@ struct SectionHeaderRow: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.custom("Didot-Bold", size: 18))
+                .font(Typography.displaySection)
                 .foregroundStyle(Asset.Color.textPrimary.color)
                 .lineLimit(1)
 
@@ -24,9 +24,8 @@ struct SectionHeaderRow: View {
 
             if let viewAll {
                 Button("View all", action: viewAll)
-                    .font(Typography.labelMedium)
+                    .font(Typography.labelSmall)
                     .foregroundStyle(Asset.Color.mainColor.color)
-                    .underline()
             }
         }
     }
@@ -38,25 +37,27 @@ struct DiscoverWorkoutCard: View {
     let workout: WorkoutDay
     let action: () -> Void
 
-    static var cardWidth: CGFloat { UIScreen.main.bounds.width * 0.62 }
+    static let cardWidth: CGFloat = 240
+    /// Auto-layout gap between cards in the carousel.
+    static let cardSpacing: CGFloat = 16
 
-    private static let photoHeight: CGFloat = 148
+    private static let photoHeight: CGFloat = 140
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: Layout.Spacing.s) {
+            VStack(alignment: .leading, spacing: Layout.Spacing.xs) {
                 RemoteImageView(url: workout.imageUrl)
                     .frame(width: Self.cardWidth, height: Self.photoHeight)
-                    .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(workout.title)
-                        .font(Typography.bodyLarge)
+                        .font(Typography.labelMedium)
                         .foregroundStyle(Asset.Color.textPrimary.color)
                         .lineLimit(1)
 
                     Text(workout.levelDurationLabel)
-                        .font(Typography.captionMedium)
+                        .font(Typography.labelSmall)
                         .foregroundStyle(Asset.Color.textSecondary.color)
                 }
             }
@@ -76,20 +77,20 @@ struct DiscoverListCard: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: Layout.Spacing.s) {
+            VStack(alignment: .leading, spacing: Layout.Spacing.xs) {
                 RemoteImageView(url: workout.imageUrl)
                     .frame(height: Self.photoHeight)
-                    .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(workout.title)
-                        .font(Typography.bodyLarge)
+                        .font(Typography.labelMedium)
                         .foregroundStyle(Asset.Color.textPrimary.color)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
 
                     Text(workout.levelDurationLabel)
-                        .font(Typography.captionMedium)
+                        .font(Typography.labelSmall)
                         .foregroundStyle(Asset.Color.textSecondary.color)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -107,24 +108,25 @@ struct RankedWorkoutRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: Layout.Spacing.s) {
+            HStack(spacing: 12) {
+                // The design sizes this to a single digit; widened so a two-digit rank still fits.
                 Text("\(rank)")
-                    .font(.custom("Didot-Bold", size: 16))
-                    .foregroundStyle(Asset.Color.textSecondary.color)
-                    .frame(width: 26.iPad(30), alignment: .leading)
+                    .font(Typography.displayXSmall)
+                    .foregroundStyle(Asset.Color.textPrimary.color)
+                    .frame(width: 22.iPad(26), alignment: .leading)
 
                 RemoteImageView(url: workout.imageUrl)
-                    .frame(width: 88, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.medium, style: .continuous))
+                    .frame(width: 123, height: 72)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(workout.title)
-                        .font(Typography.bodyLarge)
+                        .font(Typography.labelMedium)
                         .foregroundStyle(Asset.Color.textPrimary.color)
                         .lineLimit(1)
 
                     Text(workout.levelDurationLabel)
-                        .font(Typography.captionMedium)
+                        .font(Typography.labelSmall)
                         .foregroundStyle(Asset.Color.textSecondary.color)
                 }
 
@@ -143,18 +145,23 @@ struct LockedExerciseRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: Layout.Spacing.s) {
+            HStack(spacing: 12) {
                 Asset.Icon.Discover.lockBlack.image
-                    .toIcon(Layout.Icon.small)
-                    .frame(width: 48, height: 48)
-                    .background(Asset.Color.textTertiary.color)
-                    .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.medium))
+                    .toIcon(24)
+                    .frame(width: 64, height: 64)
+                    .background(Color(hex: "#CCC7C4"))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                 Text("Exercise \(position)")
                     .font(Typography.bodyLarge)
                     .foregroundStyle(Asset.Color.textPrimary.color)
 
                 Spacer()
+            }
+            .padding(.horizontal, Layout.Spacing.m)
+            .padding(.vertical, Layout.Spacing.s)
+            .overlay(alignment: .bottom) {
+                Asset.Color.borderPrimary.color.frame(height: 1)
             }
         }
         .buttonStyle(.plain)
@@ -172,46 +179,50 @@ struct RecentPlanCard: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: Layout.Spacing.s) {
+            HStack(spacing: 12) {
                 RemoteImageView(url: imageUrl)
-                    .frame(width: 56, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.medium))
+                    .frame(width: 72, height: 72)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-                VStack(alignment: .leading, spacing: Layout.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 0) {
                     Text(title)
-                        .font(.custom("Didot-Bold", size: 18))
+                        .font(Typography.displayXSmall)
                         .foregroundStyle(Asset.Color.textPrimary.color)
                         .lineLimit(1)
 
                     Text(subtitle)
-                        .font(Typography.captionMedium)
+                        .font(Typography.bodySmall)
                         .foregroundStyle(Asset.Color.textSecondary.color)
 
-                    HStack(spacing: Layout.Spacing.s) {
+                    HStack(spacing: 12) {
                         GeometryReader { geometry in
                             ZStack(alignment: .leading) {
                                 Capsule().fill(Asset.Color.borderPrimary.color)
                                 Capsule()
                                     .fill(Asset.Color.mainColor.color)
                                     .frame(width: max(geometry.size.width * progress,
-                                                      progress > 0 ? 6 : 0))
+                                                      progress > 0 ? 8 : 0))
                             }
                         }
-                        .frame(height: 4)
+                        .frame(height: 8)
 
                         Text("\(Int((progress * 100).rounded()))%")
                             .font(Typography.captionMedium)
                             .foregroundStyle(Asset.Color.mainColor.color)
                     }
+                    .padding(.top, Layout.Spacing.xs)
                 }
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Asset.Color.textTertiary.color)
+                    .frame(width: 24, height: 24)
             }
-            .padding(Layout.Spacing.s)
+            .padding(.leading, Layout.Spacing.s)
+            .padding(.vertical, Layout.Spacing.s)
+            .padding(.trailing, Layout.Spacing.m)
             .background(Asset.Color.white.color)
-            .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
         .buttonStyle(.plain)
     }

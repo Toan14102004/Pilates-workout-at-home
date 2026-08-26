@@ -33,7 +33,7 @@ struct WorkoutStatsRow: View {
                 .font(Typography.bodyLarge)
                 .foregroundStyle(Asset.Color.textPrimary.color)
             Text(label)
-                .font(Typography.captionSmall)
+                .font(Typography.labelSmall)
                 .foregroundStyle(Asset.Color.textSecondary.color)
         }
     }

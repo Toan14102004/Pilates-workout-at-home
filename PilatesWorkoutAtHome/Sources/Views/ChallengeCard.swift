@@ -7,10 +7,13 @@
 
 import SwiftUI
 
-/// The "Challenge" carousel card: inset photo, title, then a footer row with the participant
-/// cluster on the left and the Join CTA pinned bottom-right.
+/// The "Challenge" carousel card: cover photo across the top, then the title and a footer pairing
+/// the participant cluster with the Join CTA.
 ///
-/// `avatarUrls` and `participantsText` are optional because the API serves neither -- no Discover
+/// Metrics from Figma `2306:6247` → `card_ challenge`: 224×186 at r16, photo 224×120 rounded on
+/// its top corners only, content inset 8pt with a 16pt bottom.
+///
+/// `avatarUrls` and `participantsText` are optional because the API serves neither — no Discover
 /// endpoint returns a participant count or member avatars. When they are nil the footer falls back
 /// to the workout's own duration/exercise line, which is real data, and the CTA keeps its place.
 struct ChallengeCard: View {
@@ -22,49 +25,43 @@ struct ChallengeCard: View {
     let buttonTitle: String
     let action: () -> Void
 
-    static var cardWidth: CGFloat {
-        UIScreen.main.bounds.width * 0.56
-    }
+    static let cardWidth: CGFloat = 224
+    static let cardSpacing: CGFloat = 16
 
-    private static let photoHeight: CGFloat = 128
-
-    /// Fixed so cards sit level in the carousel and the CTA stays pinned bottom-right even when a
-    /// title wraps to two lines.
-    private static let cardHeight: CGFloat = 224
+    private static let photoHeight: CGFloat = 120
+    private static let cardHeight: CGFloat = 186
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Layout.Spacing.s) {
+        VStack(alignment: .leading, spacing: 0) {
             RemoteImageView(url: imageUrl)
-                .frame(width: Self.cardWidth - Layout.Spacing.s * 2, height: Self.photoHeight)
-                .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large, style: .continuous))
-                .padding(.horizontal, Layout.Spacing.s)
-                .padding(.top, Layout.Spacing.s)
+                .frame(width: Self.cardWidth, height: Self.photoHeight)
+                .clipped()
 
-            Text(title)
-                .font(Typography.subtitleSmall)
-                .foregroundStyle(Asset.Color.textPrimary.color)
-                .lineLimit(2)
-                .padding(.horizontal, Layout.Spacing.s)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(Typography.labelMedium)
+                    .foregroundStyle(Asset.Color.textPrimary.color)
+                    .lineLimit(1)
 
-            Spacer(minLength: 0)
-
-            footer
-                .padding(.horizontal, Layout.Spacing.s)
-                .padding(.bottom, Layout.Spacing.s)
+                footer
+            }
+            .padding(.horizontal, Layout.Spacing.s)
+            .padding(.top, Layout.Spacing.s)
+            .padding(.bottom, Layout.Spacing.m)
         }
         .frame(width: Self.cardWidth, height: Self.cardHeight, alignment: .topLeading)
         .background(Asset.Color.white.color)
-        .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private var footer: some View {
-        HStack(spacing: Layout.Spacing.xs) {
+        HStack(spacing: 7) {
             if !avatarUrls.isEmpty {
                 AvatarStack(urls: avatarUrls)
             }
 
             Text(participantsText ?? subtitle)
-                .font(Typography.captionMedium)
+                .font(Typography.labelSmall)
                 .foregroundStyle(Asset.Color.textSecondary.color)
                 .lineLimit(1)
                 .minimumScaleFactor(0.85)
@@ -73,12 +70,12 @@ struct ChallengeCard: View {
 
             Button(action: action) {
                 Text(buttonTitle)
-                    .font(Typography.captionLarge)
+                    .font(Typography.captionSmall)
                     .foregroundStyle(Asset.Color.white.color)
                     .padding(.horizontal, Layout.Spacing.s)
                     .padding(.vertical, Layout.Spacing.xs)
                     .background(Asset.Color.mainColor.color)
-                    .clipShape(Capsule())
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
         }
     }
@@ -91,12 +88,12 @@ struct AvatarStack: View {
     var maximum: Int = 3
 
     var body: some View {
-        HStack(spacing: -diameter * 0.35) {
+        HStack(spacing: -7) {
             ForEach(Array(urls.prefix(maximum).enumerated()), id: \.offset) { _, url in
                 RemoteImageView(url: url)
                     .frame(width: diameter, height: diameter)
                     .clipShape(Circle())
-                    .overlay(Circle().stroke(Asset.Color.white.color, lineWidth: 1.5))
+                    .overlay(Circle().stroke(Asset.Color.white.color, lineWidth: 1))
             }
         }
     }

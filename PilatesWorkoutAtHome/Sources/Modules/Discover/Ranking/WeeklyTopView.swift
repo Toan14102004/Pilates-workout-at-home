@@ -16,7 +16,7 @@ struct WeeklyTopView: View {
             DiscoverNavigationBar(title: "Weekly Top", back: viewModel.back)
 
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: Layout.Spacing.m) {
+                LazyVStack(alignment: .leading, spacing: 12) {
                     if viewModel.paging.isEmpty {
                         emptyState
                     } else {

@@ -17,7 +17,7 @@ struct DiscoverHomeView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Layout.Spacing.l) {
+            VStack(alignment: .leading, spacing: 15) {
                 if viewModel.isLoading, !viewModel.hasLoaded {
                     ProgressView()
                         .frame(maxWidth: .infinity)
@@ -56,10 +56,8 @@ struct DiscoverHomeView: View {
         // Hidden outright until a plan is under way: the design has no empty state for it, and an
         // empty card would sit above the fold on a first run.
         if let plan = viewModel.recentPlan {
-            VStack(alignment: .leading, spacing: Layout.Spacing.s) {
-                Text("Recent")
-                    .font(Typography.labelLarge)
-                    .foregroundStyle(Asset.Color.textPrimary.color)
+            VStack(alignment: .leading, spacing: 12) {
+                SectionHeaderRow(title: "Recent")
 
                 RecentPlanCard(
                     imageUrl: viewModel.recentDay?.imageUrl ?? plan.coverImageUrl,
@@ -78,11 +76,11 @@ struct DiscoverHomeView: View {
         // Offered on every section, as the design has it, and not only on ones with more rows to
         // give: the category screen is the section's full-width listing, and most sections the API
         // ships today fit inside the carousel preview.
-        VStack(alignment: .leading, spacing: Layout.Spacing.s) {
+        VStack(alignment: .leading, spacing: 12) {
             SectionHeaderRow(title: section.title) { viewModel.openSection(section) }
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: Layout.Spacing.s) {
+                HStack(alignment: .top, spacing: DiscoverWorkoutCard.cardSpacing) {
                     ForEach(section.items) { workout in
                         DiscoverWorkoutCard(workout: workout) {
                             viewModel.openWorkout(workout)
@@ -96,10 +94,10 @@ struct DiscoverHomeView: View {
     // MARK: - Weekly Top
 
     private var weeklyTopSection: some View {
-        VStack(alignment: .leading, spacing: Layout.Spacing.s) {
+        VStack(alignment: .leading, spacing: Layout.Spacing.m) {
             SectionHeaderRow(title: "Weekly Top") { viewModel.openWeeklyTop() }
 
-            VStack(spacing: Layout.Spacing.m) {
+            VStack(spacing: 12) {
                 ForEach(Array(viewModel.weeklyTop.enumerated()), id: \.element.id) { index, workout in
                     RankedWorkoutRow(rank: workout.rank ?? index + 1, workout: workout) {
                         viewModel.openWorkout(workout)

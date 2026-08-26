@@ -62,19 +62,22 @@ struct WorkoutScheduleView: View {
     private var overallProgress: some View {
         VStack(alignment: .leading, spacing: Layout.Spacing.xs) {
             Text(viewModel.progressLabel)
-                .font(Typography.captionMedium)
-                .foregroundStyle(Asset.Color.textSecondary.color)
+                .font(Typography.bodyMedium)
+                .foregroundStyle(Asset.Color.textPrimary.color)
 
-            progressBar(viewModel.progressFraction, height: 4)
+            // The overall bar is the one place the schedule uses the secondary (purple) brand
+            // colour instead of the coral used everywhere else on this screen -- per Figma
+            // `2016:160` -> "Progress indicator" (#9278B5).
+            progressBar(viewModel.progressFraction, height: 8, color: Asset.Color.secondaryColor.color)
         }
     }
 
-    private func progressBar(_ fraction: Double, height: CGFloat) -> some View {
+    private func progressBar(_ fraction: Double, height: CGFloat, color: Color = Asset.Color.mainColor.color) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
-                Capsule().fill(Asset.Color.bgSecondary.color)
+                Capsule().fill(Asset.Color.borderPrimary.color)
                 Capsule()
-                    .fill(Asset.Color.mainColor.color)
+                    .fill(color)
                     .frame(width: max(geometry.size.width * fraction, fraction > 0 ? 6 : 0))
             }
         }
@@ -96,13 +99,18 @@ struct WorkoutScheduleView: View {
 
                     Text(phase.name)
                         .font(Typography.bodySmall)
-                        .foregroundStyle(Asset.Color.textSecondary.color)
+                        .foregroundStyle(Asset.Color.textPrimary.color)
 
                     Spacer()
 
-                    Text("\(Int(viewModel.phaseProgress(phase) * 100))%")
-                        .font(Typography.captionMedium)
-                        .foregroundStyle(Asset.Color.textSecondary.color)
+                    // Figma only prints a percentage on the phase the user has started (`Phase 1`
+                    // in `2016:160`) -- the untouched `Phase 2` header carries no trailing number.
+                    let progress = viewModel.phaseProgress(phase)
+                    if progress > 0 {
+                        Text("\(Int(progress * 100))%")
+                            .font(Typography.bodySmall)
+                            .foregroundStyle(Asset.Color.textSecondary.color)
+                    }
                 }
             }
 
@@ -132,9 +140,14 @@ struct WorkoutScheduleView: View {
                         .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.medium))
 
                     VStack(alignment: .leading, spacing: 3) {
+                        // A finished day's title dims to secondary, matching the card's own
+                        // "Finished!" caption -- everything else stays primary (Figma `2016:160`:
+                        // Day 1's title is #58575F, Day 2/3's is #0E1329).
                         Text(day.title)
-                            .font(Typography.subtitleSmall)
-                            .foregroundStyle(Asset.Color.textPrimary.color)
+                            .font(Typography.displayXSmall)
+                            .foregroundStyle(state == .finished
+                                             ? Asset.Color.textSecondary.color
+                                             : Asset.Color.textPrimary.color)
 
                         subtitle(for: day, state: state, fraction: fraction)
                     }
@@ -144,12 +157,13 @@ struct WorkoutScheduleView: View {
                     trailing(for: state)
                 }
                 .padding(Layout.Spacing.s)
-                .background(state == .current ? Asset.Color.white.color : Color.clear)
+                // Every card is white -- only the current day additionally gets a coral border.
+                .background(Asset.Color.white.color)
                 .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large))
                 .overlay {
                     if state == .current {
                         RoundedRectangle(cornerRadius: Layout.CornerRadius.large)
-                            .stroke(Asset.Color.mainColor.color, lineWidth: 1.5)
+                            .stroke(Asset.Color.mainColor.color, lineWidth: 1)
                     }
                 }
             }
@@ -159,7 +173,7 @@ struct WorkoutScheduleView: View {
         .padding(.bottom, Layout.Spacing.xs)
     }
 
-    /// The connected circles running down the left edge.
+    /// The connected circles running down the left edge -- the schedule's "critical path".
     private func timeline(state: WorkoutDayState, showsConnector: Bool) -> some View {
         VStack(spacing: 0) {
             ZStack {
@@ -167,25 +181,31 @@ struct WorkoutScheduleView: View {
                 case .finished:
                     Circle().fill(Asset.Color.mainColor.color)
                     Image(systemName: "checkmark")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(Asset.Color.white.color)
                 case .current:
-                    Circle().stroke(Asset.Color.mainColor.color, lineWidth: 2)
+                    Circle().stroke(Asset.Color.mainColor.color, lineWidth: 1.5)
                 case .upcoming:
-                    Circle().stroke(Asset.Color.borderPrimary.color, lineWidth: 1.5)
+                    // `textTertiary` (#CCCCCC), not `borderPrimary` (#EAEAEA) -- the design's
+                    // upcoming dot is a full step darker than the hairline colour used for
+                    // dividers, so it still reads against the connector line.
+                    Circle().stroke(Asset.Color.textTertiary.color, lineWidth: 1.5)
                 }
             }
-            .frame(width: 16, height: 16)
+            .frame(width: 20, height: 20)
             .padding(.top, Layout.Spacing.m)
 
             if showsConnector {
+                // Coral once the day above is finished, matching the finished dot's colour;
+                // otherwise the same hairline grey as everywhere else (Figma `2016:160` ->
+                // `Line 15`, `#FF8D76` leaving Day 1, `#EAEAEA` leaving Day 2+).
                 Rectangle()
-                    .fill(Asset.Color.borderPrimary.color)
-                    .frame(width: 1.5)
+                    .fill(state == .finished ? Asset.Color.mainColor.color : Asset.Color.borderPrimary.color)
+                    .frame(width: 1)
                     .frame(maxHeight: .infinity)
             }
         }
-        .frame(width: 16)
+        .frame(width: 20)
     }
 
     @ViewBuilder
@@ -195,10 +215,13 @@ struct WorkoutScheduleView: View {
         } else if state == .finished {
             caption("Finished!")
         } else if fraction > 0 {
-            // Started but unfinished days show how far in the user got.
+            // Started but unfinished days show how far in the user got. The percentage itself
+            // is coral in the design, unlike every other caption on this row.
             HStack(spacing: Layout.Spacing.xs) {
-                progressBar(fraction, height: 3).frame(width: 90)
-                caption("\(Int(fraction * 100))%")
+                progressBar(fraction, height: 4).frame(width: 90)
+                Text("\(Int(fraction * 100))%")
+                    .font(Typography.captionMedium)
+                    .foregroundStyle(Asset.Color.mainColor.color)
             }
         } else {
             caption(day.exerciseCountLabel)

@@ -138,7 +138,7 @@ struct ContentView: View {
         HStack(spacing: Layout.Spacing.s) {
             Text(currentTab.title)
                 .foregroundStyle(Asset.Color.textPrimary.color)
-                .font(FontFamily.Inter.bold.font(size: Layout.Text.title1))
+                .font(Typography.displaySmall)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if !subscriptionManager.isSubscribed {
@@ -146,11 +146,11 @@ struct ContentView: View {
                     viewModel.showPremiumFullScreen()
                 } label: {
                     Asset.Icon.Commo.premium.image
-                        .toIcon(28.iPad(32))
+                        .toIcon(24)
                 }
             }
         }
-        .frame(height: Layout.Button.largeHeight)
+        .frame(height: 60)
         .padding(.horizontal, Layout.Spacing.m)
         .frame(maxWidth: .infinity)
         .background(Asset.Color.bgPrimary.color)
@@ -185,13 +185,13 @@ struct ContentView: View {
                 Button {
                     currentTab = tab
                 } label: {
-                    VStack(spacing: Layout.Spacing.xxs) {
+                    VStack(spacing: 4) {
                         (currentTab == tab ? tab.selectedIcon : tab.normalIcon).image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: Layout.Icon.xs, height: Layout.Icon.xs)
+                            .frame(width: 24, height: 24)
                         Text(tab.tabLabel)
-                            .font(FontFamily.Inter.medium.font(size: Layout.Text.caption2))
+                            .font(Typography.captionMedium)
                     }
                     .foregroundStyle(
                         currentTab == tab
@@ -202,15 +202,8 @@ struct ContentView: View {
                 }
             }
         }
-        .padding(.top, Layout.Spacing.xxs)
-        .padding(.bottom, Layout.Spacing.xxs)
-        .background(
-            Asset.Color.bgPrimary.color
-                .overlay(alignment: .top) {
-                    Asset.Color.borderPrimary.color.frame(height: 1)
-                }
-                .ignoresSafeArea(edges: .bottom)
-        )
+        .padding(.vertical, 10)
+        .background(Asset.Color.white.color.ignoresSafeArea(edges: .bottom))
     }
 }
 
