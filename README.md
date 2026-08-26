@@ -38,6 +38,11 @@ A comprehensive SwiftUI-based iOS application template that implements Clean Arc
 - **SwiftLint 0.50.0+**
 - **CocoaPods 1.11.0+**
 
+## 📐 Flow Spec
+
+Every screen, its data source, and its navigation — written from the Figma file and checked against
+the API: **[`docs/README.md`](docs/README.md)**.
+
 ## 🏗️ Project Structure
 
 ```
