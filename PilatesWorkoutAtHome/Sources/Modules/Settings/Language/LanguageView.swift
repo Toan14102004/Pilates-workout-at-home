@@ -36,16 +36,17 @@ struct LanguageView: View {
                         PreloadedNativeAdsView(
                             adKey: .languageClick,
                             style: .large(),
-                            height: 250
+                            height: 261
                         )
                     } else {
                         PreloadedNativeAdsView(
                             adKey: .language,
                             style: .large(),
-                            height: 250
+                            height: 261
                         )
                     }
                 }
+                .frame(height: 261)
                 .padding(.horizontal, Layout.Spacing.xs)
             }
         }
@@ -92,26 +93,45 @@ struct LanguageRowView: View {
             onTap(language)
         } label: {
             HStack(spacing: Layout.Spacing.m) {
-                language.flagAsset.image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 36, height: 24)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                if let flagAsset = language.flagAsset {
+                    flagAsset.image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 36, height: 24)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                } else if let flagEmoji = language.flagEmoji {
+                    Text(flagEmoji)
+                        .font(.system(size: 28))
+                        .frame(width: 36, height: 24)
+                }
 
                 Text(language.name)
                     .font(FontFamily.Inter.regular.font(size: 14))
                     .foregroundStyle(Asset.Color.textPrimary.color)
 
                 Spacer()
+
+                ZStack {
+                    Circle()
+                        .stroke(isSelected ? Asset.Color.secondaryColor.color : Asset.Color.textDisable.color, lineWidth: 1.5)
+                        .frame(width: 20, height: 20)
+                    if isSelected {
+                        Circle()
+                            .fill(Asset.Color.secondaryColor.color)
+                            .frame(width: 12, height: 12)
+                    }
+                }
             }
+            .frame(height: 56)
             .padding(.horizontal, Layout.Spacing.m)
-            .padding(.vertical, Layout.Spacing.m)
-            .background(Color.clear)
+            .background(isSelected ? Color(hex: "#EEE8F5") : Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(isSelected ? Asset.Color.secondaryColor.color : Asset.Color.borderPrimary.color, lineWidth: 1)
             )
+            .contentShape(RoundedRectangle(cornerRadius: 12))
+            .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
     }

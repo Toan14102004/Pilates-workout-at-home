@@ -8,7 +8,8 @@ everything reachable from it. Built. Code: `Modules/Practice/`.
 Title **Pilates Workout**, crown top-right for non-subscribers.
 
 - **Your Plan** — horizontal carousel of gradient hero cards (`PlanHeroCard`): plan name in Didot,
-  `11 Min · 12 Exercises`, and a white pill CTA **Start now**. Sample plans: Gentle Pilates,
+  `11 Min · 12 Exercises`, and a white pill CTA **Start now** positioned inside the lower-left of the
+  image. Sample plans: Gentle Pilates,
   Balanced Pilates, Elevated Pilates. Cards alternate through a purple/blue palette by position —
   the API returns no colour.
 - Native ad card.

@@ -1,6 +1,6 @@
 # 1 · Splash & Language
 
-Figma sections `Splash Screen` (`2256:5100`) and `language` (`2256:5152`). Built.
+Figma sections `Splash Screen` (`2256:5100`) and `language` (`2256:5152`). Built. Rechecked 2026-08-26 against the cached Figma file; the language list order, row geometry, radio states, and native-ad height now match the frames.
 
 ## 01 / Splash Screen — `2256:5017`
 
