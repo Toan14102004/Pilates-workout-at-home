@@ -44,6 +44,7 @@ internal enum Asset {
     internal static let mainColor = ColorAsset(name: "mainColor")
     internal static let optionBorder = ColorAsset(name: "optionBorder")
     internal static let primary = ColorAsset(name: "primary")
+    internal static let secondPurpleLight = ColorAsset(name: "secondPurpleLight")
     internal static let secondaryColor = ColorAsset(name: "secondaryColor")
     internal static let secondaryTint = ColorAsset(name: "secondaryTint")
     internal static let textBrandPrimary = ColorAsset(name: "textBrandPrimary")
@@ -69,12 +70,15 @@ internal enum Asset {
       internal static let checkmarkCircle = ImageAsset(name: "checkmarkCircle")
       internal static let circle = ImageAsset(name: "circle")
       internal static let dollarCircle = ImageAsset(name: "dollarCircle")
+      internal static let edit = ImageAsset(name: "edit")
+      internal static let fire = ImageAsset(name: "fire")
       internal static let icNoads = ImageAsset(name: "icNoads")
       internal static let locked = ImageAsset(name: "locked")
       internal static let plus = ImageAsset(name: "plus")
       internal static let premium = ImageAsset(name: "premium")
       internal static let saleTag = ImageAsset(name: "sale_tag")
       internal static let xmark = ImageAsset(name: "xmark")
+      internal static let yourStreak = ImageAsset(name: "yourStreak")
     }
     internal enum Discover {
       internal static let jewelry = ImageAsset(name: "jewelry")
