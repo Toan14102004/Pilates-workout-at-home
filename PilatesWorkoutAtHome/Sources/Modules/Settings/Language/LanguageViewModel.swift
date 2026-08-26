@@ -15,21 +15,38 @@ struct Language: Identifiable, Equatable {
     let code: String
     let name: String
     let countryCode: String
-    let flagAsset: ImageAsset
-    
+    let flagAsset: ImageAsset?
+    let flagEmoji: String?
+
+    init(code: String, name: String, countryCode: String, flagAsset: ImageAsset) {
+        self.code = code
+        self.name = name
+        self.countryCode = countryCode
+        self.flagAsset = flagAsset
+        self.flagEmoji = nil
+    }
+
+    init(code: String, name: String, countryCode: String, flagEmoji: String) {
+        self.code = code
+        self.name = name
+        self.countryCode = countryCode
+        self.flagAsset = nil
+        self.flagEmoji = flagEmoji
+    }
+
     static func == (lhs: Language, rhs: Language) -> Bool {
         return lhs.code == rhs.code
     }
-    
+
+    // Keep this order aligned with the Language frames in Figma.
     static let supportedLanguages: [Language] = [
-        Language(code: "en", name: "English", countryCode: "US", flagAsset: Asset.Icon.Language.english),
-        Language(code: "ja", name: "Japanese", countryCode: "JA", flagAsset: Asset.Icon.Language.japanese),
-        Language(code: "es", name: "Spanish", countryCode: "ES", flagAsset: Asset.Icon.Language.spanish),
+        Language(code: "ko", name: "Korean", countryCode: "KR", flagAsset: Asset.Icon.Language.korea),
+        Language(code: "ja", name: "Japan", countryCode: "JP", flagAsset: Asset.Icon.Language.japanese),
         Language(code: "fr", name: "French", countryCode: "FR", flagAsset: Asset.Icon.Language.french),
+        Language(code: "ru", name: "Russian", countryCode: "RU", flagEmoji: "🇷🇺"),
+        Language(code: "es", name: "Spanish", countryCode: "ES", flagAsset: Asset.Icon.Language.spanish),
         Language(code: "hi", name: "Hindi", countryCode: "IN", flagAsset: Asset.Icon.Language.hindi),
-        Language(code: "pt", name: "Portuguese", countryCode: "PT", flagAsset: Asset.Icon.Language.portuguese),
-        Language(code: "de", name: "German", countryCode: "DE", flagAsset: Asset.Icon.Language.germany),
-        Language(code: "ko", name: "Korean", countryCode: "KR", flagAsset: Asset.Icon.Language.korea)
+        Language(code: "en", name: "English", countryCode: "US", flagAsset: Asset.Icon.Language.english)
     ]
 }
 

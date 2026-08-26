@@ -38,6 +38,10 @@ protocol UserDefaultService: AnyObject {
     var profileSetupCompactAd: AdPlacement { get set }
     var profileSetupMediumAd: AdPlacement { get set }
     var practiceCompactAd: AdPlacement { get set }
+    var discoverCompactAd: AdPlacement { get set }
+
+    // PilatesWorkoutAtHome - Rewarded
+    var discoverUnlockRewardedAd: AdPlacement { get set }
 
     // API Configuration
     var foodScanBaseURL: String { get set }
@@ -51,12 +55,13 @@ protocol UserDefaultService: AnyObject {
 
     // Practice / Workout progress
     var workoutSettings: WorkoutSettings { get set }
-    var completedExerciseIds: [String] { get set }
+    var completedExerciseIds: [String: [String]] { get set }
     var completedWorkoutIds: [String] { get set }
     var currentWorkoutDayId: String? { get set }
     var currentProgramId: String? { get set }
     var exerciseDurationOverrides: [String: Int] { get set }
     var workoutCompletedCounts: [String: Int] { get set }
+    var unlockedWorkoutIds: [String] { get set }
 }
 
 private enum Keys {
@@ -90,6 +95,7 @@ private enum Keys {
     static let profileSetupCompactAd = "profile_setup_compact_ad"
     static let profileSetupMediumAd = "profile_setup_medium_ad"
     static let practiceCompactAd = "practice_compact_ad"
+    static let discoverCompactAd = "discover_compact_ad"
 
     // API Configuration
     static let foodScanBaseURL = "food_scan_base_url"
@@ -102,12 +108,16 @@ private enum Keys {
 
     // Practice / Workout progress
     static let workoutSettings = "workout_settings"
-    static let completedExerciseIds = "completed_exercise_ids"
+    static let completedExerciseIds = "completed_workout_exercise_ids"
     static let completedWorkoutIds = "completed_workout_ids"
     static let currentWorkoutDayId = "current_workout_day_id"
     static let currentProgramId = "current_program_id"
     static let exerciseDurationOverrides = "exercise_duration_overrides"
     static let workoutCompletedCounts = "workout_completed_counts"
+    static let unlockedWorkoutIds = "unlocked_workout_ids"
+
+    // PilatesWorkoutAtHome - Rewarded
+    static let discoverUnlockRewardedAd = "discover_unlock_rewarded_ad"
 }
 
 class LocalStorageService: UserDefaultService {
@@ -220,6 +230,21 @@ class LocalStorageService: UserDefaultService {
     )
     var practiceCompactAd: AdPlacement
 
+    @ObjectUserDefaultWrapper(
+        key: Keys.discoverCompactAd,
+        defaultValue: AdPlacement(id: "ca-app-pub-3940256099942544/2247696110", isEnabled: true)
+    )
+    var discoverCompactAd: AdPlacement
+
+    // MARK: - PilatesWorkoutAtHome Rewarded
+
+    /// Rewards a Discover workout unlock. Default is Google's public rewarded test unit.
+    @ObjectUserDefaultWrapper(
+        key: Keys.discoverUnlockRewardedAd,
+        defaultValue: AdPlacement(id: "ca-app-pub-3940256099942544/1712485313", isEnabled: true)
+    )
+    var discoverUnlockRewardedAd: AdPlacement
+
     // MARK: - PilatesWorkoutAtHome Limit
     @UserDefaultWrapper(key: Keys.maxFreeIdentityScan, defaultValue: 3)
     var maxFreeIdentityScan: Int
@@ -232,8 +257,12 @@ class LocalStorageService: UserDefaultService {
     @ObjectUserDefaultWrapper(key: Keys.workoutSettings, defaultValue: WorkoutSettings())
     var workoutSettings: WorkoutSettings
 
-    @ObjectUserDefaultWrapper(key: Keys.completedExerciseIds, defaultValue: [])
-    var completedExerciseIds: [String]
+    /// Finished exercises, keyed by workoutId. Scoped rather than flat because the API reuses one
+    /// `exerciseId` across many workouts -- a flat list marked an exercise done everywhere it
+    /// appeared as soon as it was done once. Stored under a new key for that reason: the old flat
+    /// list cannot be attributed to a workout after the fact.
+    @ObjectUserDefaultWrapper(key: Keys.completedExerciseIds, defaultValue: [:])
+    var completedExerciseIds: [String: [String]]
 
     @ObjectUserDefaultWrapper(key: Keys.completedWorkoutIds, defaultValue: [])
     var completedWorkoutIds: [String]
@@ -254,4 +283,9 @@ class LocalStorageService: UserDefaultService {
     /// has to be recorded as the session runs.
     @ObjectUserDefaultWrapper(key: Keys.workoutCompletedCounts, defaultValue: [:])
     var workoutCompletedCounts: [String: Int]
+
+    /// Discover workouts the user has paid for with a rewarded ad. Subscribers bypass this list
+    /// entirely -- see `WorkoutUnlockStore` -- so it only ever grows for free users.
+    @ObjectUserDefaultWrapper(key: Keys.unlockedWorkoutIds, defaultValue: [])
+    var unlockedWorkoutIds: [String]
 }

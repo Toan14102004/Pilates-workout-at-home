@@ -22,15 +22,16 @@ struct WorkoutExerciseRow: View {
         } label: {
             HStack(spacing: Layout.Spacing.s) {
                 RemoteImageView(url: imageUrl)
-                    .frame(width: 48, height: 48)
-                    .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.medium))
+                    .frame(width: 72, height: 72)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(Typography.bodyLarge)
                         .foregroundStyle(Asset.Color.textPrimary.color)
+                        .lineLimit(2)
                     Text(subtitle)
-                        .font(Typography.captionMedium)
+                        .font(Typography.bodySmall)
                         .foregroundStyle(Asset.Color.textSecondary.color)
                 }
 

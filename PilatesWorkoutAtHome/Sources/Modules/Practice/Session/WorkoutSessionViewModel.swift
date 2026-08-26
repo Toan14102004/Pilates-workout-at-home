@@ -115,7 +115,7 @@ extension WorkoutSessionView {
                     guard let self else { return }
                     exercises = day.exercises
                     // Resuming picks up at the first exercise not already done.
-                    index = day.exercises.firstIndex { !self.progressStore.isExerciseCompleted($0.id) } ?? 0
+                    index = day.exercises.firstIndex { !self.progressStore.isExerciseCompleted($0.id, in: self.workoutId) } ?? 0
                     beginGetReady()
                 }
                 .store(in: &cancellables)

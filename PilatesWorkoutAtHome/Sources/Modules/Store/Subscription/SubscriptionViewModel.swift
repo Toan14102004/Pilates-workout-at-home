@@ -18,6 +18,7 @@ extension SubscriptionView {
         case library
         case settings
         case foodInfo
+        case discover
         
         var trackImpressionName: String {
             switch self {
@@ -33,6 +34,8 @@ extension SubscriptionView {
                 "PW_Library_impression"
             case .foodInfo:
                 "PW_PilatesWorkoutAtHome_Info"
+            case .discover:
+                "PW_Discover_impression"
             }
         }
         
@@ -50,6 +53,8 @@ extension SubscriptionView {
                 "Premium library"
             case .foodInfo:
                 "Premium PilatesWorkoutAtHome Info"
+            case .discover:
+                "Premium discover"
             }
         }
         
@@ -67,6 +72,8 @@ extension SubscriptionView {
                 "PremiumLibraryVC"
             case .foodInfo:
                 "PremiumPilatesWorkoutAtHomeInfoVC"
+            case .discover:
+                "PremiumDiscoverVC"
             }
         }
         
@@ -84,6 +91,8 @@ extension SubscriptionView {
                 "PW_Library_cancel"
             case .foodInfo:
                 "PW_PilatesWorkoutAtHome_Info_cancel"
+            case .discover:
+                "PW_Discover_cancel"
             }
         }
         
@@ -101,6 +110,8 @@ extension SubscriptionView {
                 "PW_Library_buy"
             case .foodInfo:
                 "PW_PilatesWorkoutAtHome_Info_buy"
+            case .discover:
+                "PW_Discover_buy"
             }
         }
     }

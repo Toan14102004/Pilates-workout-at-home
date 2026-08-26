@@ -20,32 +20,32 @@ struct DurationStepper: View {
     var body: some View {
         HStack {
             Text("Duration")
-                .font(Typography.bodyMedium)
-                .foregroundStyle(Asset.Color.textSecondary.color)
+                .font(Typography.bodyLarge)
+                .foregroundStyle(Asset.Color.textPrimary.color)
 
             Spacer()
 
-            HStack(spacing: Layout.Spacing.m) {
-                stepButton(symbol: "−") { seconds = max(minimumSeconds, seconds - step) }
+            HStack(spacing: 16) {
+                stepButton(systemImage: "minus") { seconds = max(minimumSeconds, seconds - step) }
 
                 Text(label)
-                    .font(.custom("Didot-Bold", size: 20))
+                    .font(Typography.bodyLarge)
                     .foregroundStyle(Asset.Color.textPrimary.color)
-                    .frame(minWidth: 56)
+                    .frame(minWidth: 44)
 
-                stepButton(symbol: "+") { seconds += step }
+                stepButton(systemImage: "plus") { seconds += step }
             }
         }
     }
 
-    private func stepButton(symbol: String, action: @escaping () -> Void) -> some View {
+    private func stepButton(systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(symbol)
-                .font(.system(size: 18, weight: .semibold))
+            Image(systemName: systemImage)
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Asset.Color.textPrimary.color)
-                .frame(width: 32, height: 32)
-                .background(Asset.Color.bgSecondary.color)
-                .clipShape(Circle())
+                .frame(width: 28, height: 28)
+                .background(Color(hex: "#F2F2F2"))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         }
     }
 }

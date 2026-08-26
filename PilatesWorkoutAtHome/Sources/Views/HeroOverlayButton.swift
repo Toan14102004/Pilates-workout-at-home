@@ -18,29 +18,29 @@ struct HeroOverlayButton: View {
             image.image
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 16, height: 16)
+                .frame(width: 24, height: 24)
                 .foregroundStyle(Asset.Color.white.color)
-                .padding(Layout.Spacing.s)
-                .background(.black.opacity(Layout.Opacity.medium))
+                .padding(4)
+                .background(.black.opacity(0.4))
                 .clipShape(Circle())
         }
     }
 }
 
-/// Placeholder gear glyph until the real Figma settings icon can be downloaded — a literal
-/// text character (not a system image), swap for `Asset.Icon.*` once Figma access returns.
-struct HeroOverlayTextButton: View {
-    let symbol: String
+/// The settings button on the hero, matching `HeroOverlayButton`'s 32pt circle. Draws an SF
+/// Symbol because the design's gear has not been exported from Figma yet — image export is on a
+/// tighter REST quota than the file read, so it is still pending.
+struct HeroOverlaySettingsButton: View {
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Text(symbol)
-                .font(.system(size: 16, weight: .semibold))
+            Image(systemName: "gearshape.fill")
+                .font(.system(size: 18, weight: .regular))
                 .foregroundStyle(Asset.Color.white.color)
-                .frame(width: 16, height: 16)
-                .padding(Layout.Spacing.s)
-                .background(.black.opacity(Layout.Opacity.medium))
+                .frame(width: 24, height: 24)
+                .padding(4)
+                .background(.black.opacity(0.4))
                 .clipShape(Circle())
         }
     }

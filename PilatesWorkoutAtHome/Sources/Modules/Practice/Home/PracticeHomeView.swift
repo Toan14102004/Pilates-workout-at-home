@@ -15,7 +15,7 @@ struct PracticeHomeView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Layout.Spacing.l) {
+            VStack(alignment: .leading, spacing: Layout.Spacing.m) {
                 if viewModel.isLoading, !viewModel.hasLoaded {
                     loadingState
                 } else if let errorMessage = viewModel.errorMessage, !viewModel.hasLoaded {
@@ -46,14 +46,12 @@ struct PracticeHomeView: View {
     // MARK: - Your Plan
 
     private var yourPlanSection: some View {
-        VStack(alignment: .leading, spacing: Layout.Spacing.s) {
-            Text("Your Plan")
-                .font(Typography.subtitleSmall)
-                .foregroundStyle(Asset.Color.textPrimary.color)
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeaderRow(title: "Your Plan")
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Layout.Spacing.s) {
-                    ForEach(Array(viewModel.plans.enumerated()), id: \.element.id) { index, plan in
+                HStack(spacing: PlanHeroCard.cardSpacing) {
+                    ForEach(viewModel.plans) { plan in
                         PlanHeroCard(
                             imageUrl: plan.coverImageUrl,
                             title: viewModel.cardTitle(for: plan),
@@ -61,7 +59,6 @@ struct PracticeHomeView: View {
                             exercisesText: plan.exercisesText,
                             fallbackText: plan.fallbackText,
                             buttonTitle: viewModel.buttonTitle(for: plan),
-                            paletteIndex: index,
                             action: { viewModel.openPlan(plan) }
                         )
                     }
@@ -73,11 +70,11 @@ struct PracticeHomeView: View {
     // MARK: - Challenge
 
     private var challengeSection: some View {
-        VStack(alignment: .leading, spacing: Layout.Spacing.s) {
-            sectionHeader(title: "Challenge")
+        VStack(alignment: .leading, spacing: 12) {
+            SectionHeaderRow(title: "Challenge", viewAll: viewModel.openChallengeList)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Layout.Spacing.s) {
+                HStack(alignment: .top, spacing: ChallengeCard.cardSpacing) {
                     ForEach(viewModel.challenges) { workout in
                         ChallengeCard(
                             imageUrl: workout.imageUrl,
@@ -95,10 +92,10 @@ struct PracticeHomeView: View {
     // MARK: - Just for you
 
     private var justForYouSection: some View {
-        VStack(alignment: .leading, spacing: Layout.Spacing.s) {
-            sectionHeader(title: "Just for you")
+        VStack(alignment: .leading, spacing: 14) {
+            SectionHeaderRow(title: "Just for you", viewAll: viewModel.openJustForYouList)
 
-            VStack(spacing: Layout.Spacing.m) {
+            VStack(spacing: 14) {
                 ForEach(viewModel.justForYou) { workout in
                     WorkoutExerciseRow(
                         imageUrl: workout.imageUrl,
@@ -108,19 +105,6 @@ struct PracticeHomeView: View {
                     )
                 }
             }
-        }
-    }
-
-    private func sectionHeader(title: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.custom("Didot-Bold", size: 18))
-                .foregroundStyle(Asset.Color.textPrimary.color)
-            Spacer()
-            Button("View all") {}
-                .font(Typography.labelMedium)
-                .foregroundStyle(Asset.Color.mainColor.color)
-                .underline()
         }
     }
 }

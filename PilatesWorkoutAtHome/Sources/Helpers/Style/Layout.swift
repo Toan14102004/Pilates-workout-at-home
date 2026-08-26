@@ -38,6 +38,11 @@ public enum Layout {
     /// edge to edge behind it.
     public static let heroHeight: CGFloat = 220
 
+    /// Horizontal inset for the primary footer button on the Workout Day and Discover workout
+    /// screens. The design centres a 296pt button on a 375pt screen rather than running it to the
+    /// 16pt content margin.
+    public static let footerInset: CGFloat = 40
+
     // MARK: - Spacing
     /// Spacing values following Apple's 8pt grid system.
     /// Use these for padding, margins, and gaps between elements.

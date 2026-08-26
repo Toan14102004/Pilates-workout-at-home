@@ -17,6 +17,8 @@ extension PracticeHomeView {
         @Published var coordinator = Coordinator()
         @Published var plans: [WorkoutPlan] = []
         @Published var challenges: [WorkoutDay] = []
+        /// Kept so "View all" can open the section the carousel was filled from.
+        @Published var challengeSection: DiscoverSection?
         @Published var justForYou: [WorkoutDay] = []
         @Published var isLoading = false
         @Published var errorMessage: String?
@@ -52,6 +54,7 @@ extension PracticeHomeView {
             } receiveValue: { [weak self] programs, discover in
                 guard let self else { return }
                 plans = programs
+                challengeSection = discover.sections.first
                 challenges = discover.sections.first?.items ?? []
                 justForYou = discover.weeklyTop
             }
@@ -87,6 +90,20 @@ extension PracticeHomeView {
 
         func openWorkout(_ workout: WorkoutDay) {
             navigator.push(ContentView.Coordinator.Navigation.workoutDay(workoutId: workout.id))
+        }
+
+        /// Both carousels are filled from Discover, so their "View all" links land on the Discover
+        /// screens that list the same thing in full.
+        func openChallengeList() {
+            guard let section = challengeSection else { return }
+            navigator.push(ContentView.Coordinator.Navigation.discoverCategory(
+                sectionId: section.id,
+                title: section.title
+            ))
+        }
+
+        func openJustForYouList() {
+            navigator.push(ContentView.Coordinator.Navigation.discoverWeeklyTop)
         }
     }
 }

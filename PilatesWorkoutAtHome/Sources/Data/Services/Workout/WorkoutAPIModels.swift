@@ -217,3 +217,31 @@ struct DiscoverItemDTO: Codable {
     let calories: Double?
     let rank: Int?
 }
+
+/// `GET /workouts/discover/sections/{sectionId}` -- one section's full, paged item list. The
+/// section's own title comes back with it, so the category screen needs no extra call to name
+/// itself when it is opened from a deep link rather than from the Discover feed.
+struct DiscoverSectionPageDTO: Codable {
+    let section: DiscoverSectionInfoDTO?
+    let items: [DiscoverItemDTO]?
+    let page: Int?
+    let limit: Int?
+    let totalItems: Int?
+    let totalPages: Int?
+}
+
+struct DiscoverSectionInfoDTO: Codable {
+    let sectionId: Int
+    let title: String
+    let displayOrder: Int?
+}
+
+/// `GET /workouts/weekly-top` -- the full ranking behind the Discover feed's preview.
+struct WeeklyTopPageDTO: Codable {
+    let items: [DiscoverItemDTO]?
+    let rankingWindowDays: Int?
+    let page: Int?
+    let limit: Int?
+    let totalItems: Int?
+    let totalPages: Int?
+}

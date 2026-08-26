@@ -33,7 +33,7 @@ struct ExerciseDetailView: View {
             .ignoresSafeArea(edges: .top)
 
             ScrollView {
-                VStack(alignment: .leading, spacing: Layout.Spacing.l) {
+                VStack(alignment: .leading, spacing: Layout.Spacing.m) {
                     PreloadedNativeAdsView(adKey: .practiceCompact, style: .contentCard, height: NativeAdViewStyle.contentCard.height)
 
                     if viewModel.isLoading, viewModel.exercise == nil {
@@ -79,7 +79,7 @@ struct ExerciseDetailView: View {
     @ViewBuilder
     private func content(_ exercise: WorkoutExercise) -> some View {
         Text(exercise.name)
-            .font(.custom("Didot-Bold", size: 24))
+            .font(Typography.displayMedium)
             .foregroundStyle(Asset.Color.textPrimary.color)
 
         DurationStepper(seconds: $viewModel.draftDurationSeconds)
@@ -94,21 +94,16 @@ struct ExerciseDetailView: View {
     @ViewBuilder
     private func bulletSection(title: String, items: [String]) -> some View {
         if !items.isEmpty {
-            VStack(alignment: .leading, spacing: Layout.Spacing.xs) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(Typography.subtitleSmall)
                     .foregroundStyle(Asset.Color.textPrimary.color)
 
-                VStack(alignment: .leading, spacing: Layout.Spacing.xxs) {
-                    ForEach(items, id: \.self) { item in
-                        HStack(alignment: .top, spacing: Layout.Spacing.xs) {
-                            Text("•")
-                            Text(item)
-                        }
-                        .font(Typography.bodyMedium)
-                        .foregroundStyle(Asset.Color.textSecondary.color)
-                    }
-                }
+                // Figma renders these as a single paragraph, one point per line with no bullet
+                // glyph -- the API's own line breaks already carry that structure.
+                Text(items.joined(separator: "\n"))
+                    .font(Typography.bodyMedium)
+                    .foregroundStyle(Asset.Color.textPrimary.color)
             }
         }
     }
@@ -121,46 +116,61 @@ struct ExerciseDetailView: View {
                         .font(Typography.bodyLarge)
                         .foregroundStyle(Asset.Color.mainColor.color)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, Layout.Spacing.m)
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Asset.Color.mainColor.color, lineWidth: 1.5))
+                        .frame(height: 46)
+                        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Asset.Color.mainColor.color, lineWidth: 1))
 
                     Button("Save", action: viewModel.save)
                         .font(Typography.bodyLarge)
                         .foregroundStyle(Asset.Color.white.color)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, Layout.Spacing.m)
+                        .frame(height: 46)
                         .background(Asset.Color.mainColor.color)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
             } else {
-                HStack {
-                    Button(action: viewModel.goPrevious) {
-                        Text("‹").font(.system(size: 20, weight: .semibold))
-                            .frame(width: 32, height: 32)
-                    }
-                    .disabled(!viewModel.canGoPrevious)
-                    .opacity(viewModel.canGoPrevious ? 1 : 0.3)
-
-                    Spacer()
+                // The three pieces sit grouped and centred, per Figma -- not spread across the
+                // full width the way a leading/trailing pager usually lays out.
+                HStack(spacing: 26) {
+                    pagerButton(systemImage: "chevron.left",
+                               background: Asset.Color.white.color,
+                               tint: Asset.Color.textTertiary.color,
+                               action: viewModel.goPrevious,
+                               enabled: viewModel.canGoPrevious)
 
                     Text(viewModel.paginationLabel)
-                        .font(Typography.bodyMedium)
-                        .foregroundStyle(Asset.Color.textSecondary.color)
+                        .font(Typography.bodyLarge)
+                        .foregroundStyle(Asset.Color.textPrimary.color)
 
-                    Spacer()
-
-                    Button(action: viewModel.goNext) {
-                        Text("›").font(.system(size: 20, weight: .semibold))
-                            .frame(width: 32, height: 32)
-                    }
-                    .disabled(!viewModel.canGoNext)
-                    .opacity(viewModel.canGoNext ? 1 : 0.3)
+                    pagerButton(systemImage: "chevron.right",
+                               background: Color(hex: "#FFCFC6"),
+                               tint: Asset.Color.mainColor.color,
+                               action: viewModel.goNext,
+                               enabled: viewModel.canGoNext)
                 }
-                .foregroundStyle(Asset.Color.mainColor.color)
+                .frame(maxWidth: .infinity)
             }
         }
         .padding(.horizontal, Layout.Spacing.m)
         .padding(.top, Layout.Spacing.s)
         .padding(.bottom, UIApplication.shared.safeAreaBottom + Layout.Spacing.s)
+    }
+
+    private func pagerButton(systemImage: String,
+                             background: Color,
+                             tint: Color,
+                             action: @escaping () -> Void,
+                             enabled: Bool) -> some View
+    {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 28, height: 28)
+                .background(background)
+                .clipShape(Circle())
+        }
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.4)
     }
 }
