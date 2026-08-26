@@ -89,6 +89,31 @@ final class WorkoutService {
             .eraseToAnyPublisher()
     }
 
+    // MARK: - Progress sync
+
+    /// Pushes a finished workout's completed exercises to the server, keyed by their zero-based
+    /// `order` -- the backend derives progress and completion status from that list. Feeds the
+    /// Progress tab's "Exercises" card (`GET /users/{deviceId}/workouts/participated`), which
+    /// otherwise has nothing to show since completion was, until now, tracked locally only.
+    func saveProgress(workoutId: String,
+                      deviceId: String,
+                      completedExerciseOrders: [Int],
+                      elapsedSeconds: Int,
+                      startedAt: Date) -> AnyPublisher<Void, NetworkError>
+    {
+        let body = SaveWorkoutProgressRequest(
+            deviceId: deviceId,
+            completedExerciseOrders: completedExerciseOrders,
+            elapsedSeconds: elapsedSeconds,
+            startedAt: ISO8601DateFormatter().string(from: startedAt)
+        )
+
+        return networkService
+            .put(endpoint: "/workouts/\(workoutId)/progress", body: body, responseType: APIResponse<EmptyDTO>.self)
+            .map { _ in () }
+            .eraseToAnyPublisher()
+    }
+
     // MARK: - Exercises
 
     /// Full instructions and media for one exercise. `workoutId` lets the server scope the

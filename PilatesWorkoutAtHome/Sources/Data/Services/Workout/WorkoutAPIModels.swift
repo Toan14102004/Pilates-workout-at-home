@@ -245,3 +245,15 @@ struct WeeklyTopPageDTO: Codable {
     let totalItems: Int?
     let totalPages: Int?
 }
+
+// MARK: - Progress sync
+
+struct SaveWorkoutProgressRequest: Codable {
+    let deviceId: String
+    let completedExerciseOrders: [Int]
+    let elapsedSeconds: Int
+    let startedAt: String
+}
+
+/// Decodes a `{success, data}` response whose `data` payload carries nothing the caller needs.
+struct EmptyDTO: Codable {}

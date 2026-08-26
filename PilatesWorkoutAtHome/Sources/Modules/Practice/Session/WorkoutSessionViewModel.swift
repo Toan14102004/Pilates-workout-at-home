@@ -171,7 +171,7 @@ extension WorkoutSessionView {
         private func finish() {
             stopTimer()
             phase = .completed
-            progressStore.markWorkoutCompleted(workoutId: workoutId, elapsedSeconds: elapsedSeconds)
+            progressStore.markWorkoutCompleted(workoutId: workoutId, exercises: exercises, elapsedSeconds: elapsedSeconds)
         }
 
         // MARK: - Timer

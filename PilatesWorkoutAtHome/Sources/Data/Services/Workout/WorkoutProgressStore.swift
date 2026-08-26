@@ -21,6 +21,10 @@ import Foundation
 /// dependency from `init` runs before the container is ready and traps.
 final class WorkoutProgressStore: ObservableObject {
     @Injected var localStorageService: LocalStorageService
+    @Injected var workoutService: WorkoutService
+    @Injected var deviceRegistration: DeviceRegistrationService
+
+    private var cancellables = Set<AnyCancellable>()
 
     var completedWorkoutIds: Set<String> { Set(localStorageService.completedWorkoutIds) }
 
@@ -56,12 +60,28 @@ final class WorkoutProgressStore: ObservableObject {
         return min(Double(done) / Double(exerciseCount), 1)
     }
 
-    /// Called when every exercise in a workout has been finished. `elapsedSeconds` is kept for the
-    /// progress payload the server will eventually receive.
-    func markWorkoutCompleted(workoutId: String, elapsedSeconds _: Int) {
+    /// Called when every exercise in a workout has been finished. Progress is recorded locally
+    /// first -- the UI reacts immediately either way -- then pushed to the server best-effort:
+    /// completing a workout there also files a matching activity, which is what makes the
+    /// Progress tab's calorie ring, weekly charts and "Exercises" card have anything to show.
+    /// A failed push is not surfaced; the local record already stands and the next completed
+    /// workout will try again.
+    func markWorkoutCompleted(workoutId: String, exercises: [WorkoutExercise], elapsedSeconds: Int) {
         guard !isWorkoutCompleted(workoutId) else { return }
         objectWillChange.send()
         localStorageService.completedWorkoutIds.append(workoutId)
+
+        let startedAt = Date().addingTimeInterval(-Double(elapsedSeconds))
+        deviceRegistration.registerIfNeeded()
+            .flatMap { [workoutService, deviceRegistration] in
+                workoutService.saveProgress(workoutId: workoutId,
+                                            deviceId: deviceRegistration.deviceId,
+                                            completedExerciseOrders: exercises.map(\.order),
+                                            elapsedSeconds: elapsedSeconds,
+                                            startedAt: startedAt)
+            }
+            .sink(receiveCompletion: { _ in }, receiveValue: {})
+            .store(in: &cancellables)
     }
 
     /// Clears one workout's progress -- the "Restart" action on the Workout Day screen. Only this
