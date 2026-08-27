@@ -78,6 +78,8 @@ internal enum Asset {
       internal static let edit = ImageAsset(name: "edit")
       internal static let fire = ImageAsset(name: "fire")
       internal static let icNoads = ImageAsset(name: "icNoads")
+      internal static let leafLeft = ImageAsset(name: "leafLeft")
+      internal static let leafRight = ImageAsset(name: "leafRight")
       internal static let locked = ImageAsset(name: "locked")
       internal static let plus = ImageAsset(name: "plus")
       internal static let premium = ImageAsset(name: "premium")

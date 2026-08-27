@@ -14,21 +14,11 @@ struct WelcomeView: View {
         Group {
             VStack(spacing: 0) {
                 Spacer()
-
-                VStack(spacing: Layout.Spacing.xs) {
-                    Text("Find Your Perfect Flow")
-                        .font(.custom("Didot-Bold", size: 32))
-                        .multilineTextAlignment(.center)
-
-                    Text("Choose workouts that fit your goals, fitness level, and schedule — from gentle stretches to full body Pilates.")
-                        .font(FontFamily.Inter.regular.font(size: 12))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white.opacity(0.8))
-                }
-                .padding(.horizontal, Layout.Spacing.l)
-                .padding(.bottom, Layout.Spacing.l)
-
-                HStack(spacing: Layout.Spacing.xs) {
+                
+                HStack(spacing: 0) {
+                    Asset.Icon.Commo.leafLeft.image
+                        .toIcon(Layout.Icon.xxl)
+                    
                     VStack(spacing: 2) {
                         Text("1,000,000+")
                             .font(FontFamily.Inter.bold.font(size: 16))
@@ -43,11 +33,27 @@ struct WelcomeView: View {
                             }
                         }
                     }
+                    
+                    Asset.Icon.Commo.leafRight.image
+                        .toIcon(Layout.Icon.xxl)
                 }
                 .padding(.bottom, Layout.Spacing.l)
 
+                VStack(spacing: Layout.Spacing.xs) {
+                    Text("Find Your Perfect Flow")
+                        .font(.custom("Didot-Bold", size: 28))
+                        .multilineTextAlignment(.center)
+
+                    Text("Choose workouts that fit your goals, fitness level, and schedule — from gentle stretches to full body Pilates.")
+                        .font(FontFamily.Inter.regular.font(size: 12))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+                .padding(.horizontal, Layout.Spacing.l)
+                .padding(.bottom, Layout.Spacing.l)
+
                 PrimaryButton(title: "Get Started", systemIcon: nil, action: viewModel.getStarted)
-                    .padding(.horizontal, Layout.Spacing.m)
+                    .padding(.horizontal, Layout.Spacing.xxxl + Layout.Spacing.xxl)
             }
             .padding(.bottom, UIApplication.shared.safeAreaBottom + Layout.Spacing.l)
         }

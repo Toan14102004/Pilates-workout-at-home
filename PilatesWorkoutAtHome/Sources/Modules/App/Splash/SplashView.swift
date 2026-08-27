@@ -26,9 +26,9 @@ struct SplashView: View {
         VStack(alignment: .leading, spacing: 0) {
             Spacer()
 
-            VStack(alignment: .leading, spacing: Layout.Spacing.m) {
+            VStack(alignment: .center, spacing: Layout.Spacing.m) {
                 RoundedRectangle(cornerRadius: Layout.CornerRadius.large)
-                    .fill(.white.opacity(0.12))
+                    .fill(.white.opacity(0.2))
                     .frame(width: 80, height: 80)
                     .overlay {
                         Image(systemName: "figure.pilates")
@@ -38,13 +38,18 @@ struct SplashView: View {
 
                 Text("Move. Breathe. Feel stronger.")
                     .font(.custom("Didot-Bold", size: 22))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Asset.Color.white.color)
             }
+            .frame(maxWidth: .infinity)
             .padding(.horizontal, Layout.Spacing.m)
 
             Spacer()
 
             VStack(spacing: Layout.Spacing.m) {
+                Text("This action can contain ads")
+                    .font(FontFamily.Inter.medium.font(size: 16))
+                    .foregroundStyle(Asset.Color.white.color)
+                
                 GeometryReader { proxy in
                     let width = proxy.size.width
                     ZStack(alignment: .leading) {
@@ -60,9 +65,6 @@ struct SplashView: View {
                 .frame(height: 8)
                 .padding(.horizontal, Layout.Spacing.l * 2)
 
-                Text("This action can contain ads")
-                    .font(FontFamily.Inter.medium.font(size: 16))
-                    .foregroundStyle(.white)
             }
             .padding(.bottom, UIApplication.shared.safeAreaBottom + Layout.Spacing.xl)
         }
