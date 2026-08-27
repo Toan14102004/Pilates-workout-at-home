@@ -7,7 +7,32 @@
 
 import SwiftUI
 
-/// Figma: FLow Profile / 04 — Workout Settings.
+private struct SoundWaveAnimation: View {
+    @State private var isAnimating = false
+
+    private let barHeights: [CGFloat] = [8, 16, 11, 20, 13]
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(barHeights.indices, id: \.self) { index in
+                Capsule()
+                    .fill(Asset.Color.mainColor.color)
+                    .frame(width: 3, height: isAnimating ? barHeights[index] : 5)
+                    .animation(
+                        .easeInOut(duration: 0.45)
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(index) * 0.08),
+                        value: isAnimating
+                    )
+            }
+        }
+        .frame(maxHeight: .infinity)
+        .onAppear { isAnimating = true }
+        .onDisappear { isAnimating = false }
+        .accessibilityElement(children: .ignore)
+    }
+}
+
 struct WorkoutSettingsView: View {
     @StateObject var viewModel = ViewModel()
 
@@ -72,10 +97,17 @@ struct WorkoutSettingsView: View {
     private var musicCard: some View {
         HStack(spacing: Layout.Spacing.m) {
             VStack(alignment: .leading, spacing: Layout.Spacing.s) {
-                HStack(spacing: 2) {
-                    Asset.Icon.Profile.soundWave.image
-                        .resizable()
-                        .frame(width: 24, height: 24)
+                HStack(spacing: Layout.Spacing.xs) {
+                    if viewModel.isPlaying {
+                        SoundWaveAnimation()
+                            .frame(width: 24, height: 24)
+                            .accessibilityLabel("Music playing")
+                    } else {
+                        Asset.Icon.Profile.soundWave.image
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .accessibilityHidden(true)
+                    }
 
                     Text(viewModel.settings.songTitle)
                         .font(Typography.bodyMedium)
