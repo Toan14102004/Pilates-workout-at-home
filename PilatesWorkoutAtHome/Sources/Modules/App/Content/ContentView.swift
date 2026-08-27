@@ -67,8 +67,9 @@ struct ContentView: View {
                             PracticeHomeView()
                         case .discover:
                             DiscoverHomeView()
-                        default:
-                            // TODO: replace with real screens as each flow lands (see 7-day sprint plan).
+                        case .progress:
+                            ProgressHomeView()
+                        case .profile:
                             placeholderContent(for: tab)
                         }
                     }
@@ -83,6 +84,12 @@ struct ContentView: View {
             tabBar()
         }
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            if currentTab == .progress { viewModel.loadProgressStreakIfNeeded() }
+        }
+        .onChange(of: currentTab) { newTab in
+            if newTab == .progress { viewModel.loadProgressStreakIfNeeded() }
+        }
         .flowDestination(for: Coordinator.Navigation.self) { item in
             switch item {
             case .settingView:
@@ -103,6 +110,20 @@ struct ContentView: View {
                 WeeklyTopView()
             case let .discoverWorkout(workoutId):
                 DiscoverWorkoutView(workoutId: workoutId)
+            case .progressActivityType:
+                ProgressActivityTypeView()
+            case let .progressActivityForm(categoryId, categoryName, iconKey, met, existingActivityId, initialDurationSeconds, initialCalories):
+                ProgressActivityFormView(
+                    categoryId: categoryId,
+                    categoryName: categoryName,
+                    iconKey: iconKey,
+                    met: met,
+                    existingActivityId: existingActivityId,
+                    initialDurationSeconds: initialDurationSeconds,
+                    initialCalories: initialCalories
+                )
+            case .progressStreak:
+                ProgressStreakView()
             }
         }
         .popup(item: $viewModel.coordinator.alert) { item in
@@ -141,7 +162,9 @@ struct ContentView: View {
                 .font(Typography.displaySmall)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            if !subscriptionManager.isSubscribed {
+            if currentTab == .progress {
+                progressStreakBadge
+            } else if !subscriptionManager.isSubscribed {
                 Button {
                     viewModel.showPremiumFullScreen()
                 } label: {
@@ -154,6 +177,23 @@ struct ContentView: View {
         .padding(.horizontal, Layout.Spacing.m)
         .frame(maxWidth: .infinity)
         .background(Asset.Color.bgPrimary.color)
+    }
+
+    private var progressStreakBadge: some View {
+        Button(action: viewModel.openProgressStreak) {
+            HStack(spacing: Layout.Spacing.s) {
+                Asset.Icon.Commo.fire.image.toIcon(Layout.Icon.medium)
+                
+                Text("\(viewModel.progressStreakDays)")
+                   
+            }
+            .font(Typography.bodyLarge)
+            .foregroundStyle(Asset.Color.mainColor.color)
+            .padding(.horizontal, Layout.Spacing.s)
+            .padding(.vertical, Layout.Spacing.xs)
+            .background(Asset.Color.white.color, in: Capsule())
+            .overlay(Capsule().stroke(Asset.Color.mainColor.color, lineWidth: 1))
+        }
     }
 
     @ViewBuilder

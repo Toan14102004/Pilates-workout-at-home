@@ -25,7 +25,7 @@ under `.figma-cache/`, so that costs no API quota.
 | 5 | [Workout Session](flows/workout-session.md) | `FLow Practice` | Built |
 | 6 | [Challenge](flows/challenge.md) | `FLow Challenge` | Partly built |
 | 7 | [Discover](flows/discover.md) | `FLow Discover` | Built |
-| 8 | [Progress](flows/progress.md) | `FLow Progress` | Not built |
+| 8 | [Progress](flows/progress.md) | `FLow Progress` | Built |
 | 9 | [Profile](flows/profile.md) | `FLow Profile` | Not built |
 
 "Status" is about the app, not the design: every flow here is fully designed.
@@ -33,8 +33,8 @@ under `.figma-cache/`, so that costs no API quota.
 ## Tab bar
 
 Four tabs, in `ContentView`: **Plan** (flow 4), **Discover** (flow 7), **Progress** (flow 8),
-**Profile** (flow 9). Progress and Profile still render `placeholderContent`. The header above the
-tabs shows the tab's title and, for non-subscribers, a crown that opens the paywall.
+**Profile** (flow 9). Profile still renders `placeholderContent`. The header above the tabs shows
+the tab's title and, for non-subscribers, a crown that opens the paywall.
 
 ## Colour styles
 

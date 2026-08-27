@@ -39,6 +39,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         Dependency { KeychainStorage() }
         Dependency { NetworkService() }
         Dependency { WorkoutService() }
+        Dependency { DeviceRegistrationService() }
+        Dependency { ProgressService() }
         Dependency { WorkoutProgressStore() }
         Dependency { WorkoutUnlockStore() }
         Dependency { FileStorageManager() }

@@ -52,6 +52,11 @@ protocol UserDefaultService: AnyObject {
 
     // Profile Setup
     var profileSetupAnswers: ProfileSetupAnswers { get set }
+    /// Stable per-install identity, shared by every endpoint that needs a `deviceId`
+    /// (`/activities/*`, `/workouts/{id}/progress`, `/workouts/suggestions`).
+    var deviceId: String { get }
+    var isDeviceRegistered: Bool { get set }
+    var dailyCalorieGoal: Int { get set }
 
     // Practice / Workout progress
     var workoutSettings: WorkoutSettings { get set }
@@ -105,6 +110,9 @@ private enum Keys {
 
     // Profile Setup
     static let profileSetupAnswers = "profile_setup_answers"
+    static let deviceId = "device_id"
+    static let isDeviceRegistered = "is_device_registered"
+    static let dailyCalorieGoal = "daily_calorie_goal"
 
     // Practice / Workout progress
     static let workoutSettings = "workout_settings"
@@ -252,6 +260,30 @@ class LocalStorageService: UserDefaultService {
     // MARK: - Profile Setup
     @ObjectUserDefaultWrapper(key: Keys.profileSetupAnswers, defaultValue: ProfileSetupAnswers())
     var profileSetupAnswers: ProfileSetupAnswers
+
+    // MARK: - Device identity
+    /// Backing storage for `deviceId`. `ObjectUserDefaultWrapper`'s `defaultValue` is only ever
+    /// *returned* on a cache miss, never written -- if `deviceId` used it directly with a fresh
+    /// `UUID()`, every relaunch before the first explicit write would mint a new, different id,
+    /// so a device registered on launch N would look unregistered (and be silently rejected by
+    /// every `/activities/*` and `/workouts/{id}/progress` call) on launch N+1. `deviceId` below
+    /// generates one UUID and immediately writes it back, so the miss only ever happens once.
+    @ObjectUserDefaultWrapper(key: Keys.deviceId, defaultValue: String?.none)
+    private var storedDeviceId: String?
+
+    var deviceId: String {
+        if let storedDeviceId { return storedDeviceId }
+        let generated = UUID().uuidString
+        storedDeviceId = generated
+        return generated
+    }
+
+    @UserDefaultWrapper(key: Keys.isDeviceRegistered, defaultValue: false)
+    var isDeviceRegistered: Bool
+
+    // MARK: - Progress
+    @UserDefaultWrapper(key: Keys.dailyCalorieGoal, defaultValue: 200)
+    var dailyCalorieGoal: Int
 
     // MARK: - Practice / Workout progress
     @ObjectUserDefaultWrapper(key: Keys.workoutSettings, defaultValue: WorkoutSettings())

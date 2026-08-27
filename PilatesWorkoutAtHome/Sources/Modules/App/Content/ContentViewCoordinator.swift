@@ -25,6 +25,20 @@ extension ContentView {
       case discoverCategory(sectionId: Int, title: String)
       case discoverWeeklyTop
       case discoverWorkout(workoutId: String)
+      case progressActivityType
+      /// Add a new activity for `category`, or edit `existingActivityId` if it came from tapping
+      /// an already-logged entry. Carrying name/icon/MET here (rather than just an id) lets the
+      /// form recompute its calorie estimate as duration changes without a second network call.
+      case progressActivityForm(
+        categoryId: String,
+        categoryName: String,
+        iconKey: String?,
+        met: Double,
+        existingActivityId: String?,
+        initialDurationSeconds: Int,
+        initialCalories: Double
+      )
+      case progressStreak
     }
 
     var alert: Alert?

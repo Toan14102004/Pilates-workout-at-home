@@ -125,6 +125,20 @@ class NetworkService {
         )
     }
 
+    /// PATCH request với strongly typed body
+    func patch<T: Codable>(
+        endpoint: String,
+        body: some Codable,
+        responseType: T.Type
+    ) -> AnyPublisher<T, NetworkError> {
+        requestWithTypedBody(
+            endpoint: endpoint,
+            method: .patch,
+            body: body,
+            responseType: responseType
+        )
+    }
+
     /// DELETE request
     func delete<T: Codable>(
         endpoint: String,
