@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-/// Figma: FLow Profile / 01 — Profile Overview. Rendered as the root of the Profile tab,
-/// so the back chevron in the design frame is intentionally dropped here.
 struct ProfileView: View {
     @StateObject var viewModel = ViewModel()
     @EnvironmentObject var subscriptionManager: SubscriptionManager
@@ -28,7 +26,7 @@ struct ProfileView: View {
                             PremiumAccessCard(action: viewModel.openPremium)
                         }
 
-                        PreloadedNativeAdsView(adKey: .profileMedium, style: .medium, height: NativeAdViewStyle.medium.height)
+                        PreloadedNativeAdsView(adKey: .profileMedium, style: .contentCard, height: NativeAdViewStyle.contentCard.height)
 
                         ProfileMenuCard {
                             ProfileMenuRow(icon: Asset.Icon.Profile.menuProfile.image, title: "My Profile", action: viewModel.openPersonalDetails)
@@ -58,19 +56,19 @@ struct ProfileView: View {
     // MARK: - Pieces
 
     private var streakPill: some View {
-        HStack(spacing: Layout.Spacing.s) {
-            Asset.Icon.Profile.fireStreak.image
-                .resizable()
-                .frame(width: 24, height: 24)
+        Button(action: viewModel.openStreak) {
+            HStack(spacing: Layout.Spacing.s) {
+                Asset.Icon.Commo.fire.image.toIcon(Layout.Icon.medium)
 
-            Text("\(viewModel.profile.streakCount)")
-                .font(Typography.bodyLarge)
-                .foregroundStyle(Asset.Color.mainColor.color)
+                Text("\(viewModel.streakDays)")
+            }
+            .font(Typography.bodyLarge)
+            .foregroundStyle(Asset.Color.mainColor.color)
+            .padding(.horizontal, Layout.Spacing.s)
+            .padding(.vertical, Layout.Spacing.xs)
+            .background(Asset.Color.white.color, in: Capsule())
+            .overlay(Capsule().stroke(Asset.Color.mainColor.color, lineWidth: 1))
         }
-        .padding(.horizontal, Layout.Spacing.s)
-        .padding(.vertical, Layout.Spacing.xxs)
-        .background(Asset.Color.white.color)
-        .clipShape(Capsule())
     }
 
     private var identity: some View {
