@@ -43,8 +43,8 @@ struct PremiumAccessCard: View {
 
                 Asset.Icon.Profile.crownPremium.image
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 116, height: 116)
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 136, height: 126)
             }
             .padding(Layout.Spacing.m)
             .frame(height: 120)

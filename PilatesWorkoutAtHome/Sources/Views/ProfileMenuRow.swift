@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-/// One 64pt row of the Profile tab's menu cards: tinted 40pt icon tile, label, chevron.
 struct ProfileMenuRow: View {
     let icon: Image
     let title: String
@@ -18,12 +17,7 @@ struct ProfileMenuRow: View {
             HStack(spacing: Layout.Spacing.s + Layout.Spacing.xs) {
                 icon
                     .resizable()
-                    .renderingMode(.template)
-                    .foregroundStyle(Asset.Color.secondaryColor.color)
-                    .frame(width: 24, height: 24)
-                    .padding(Layout.Spacing.s)
-                    .background(Asset.Color.iconSurface.color)
-                    .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.medium))
+                    .frame(width: 40.iPad(50), height: 40.iPad(50))
 
                 Text(title)
                     .font(Typography.bodyMedium)
@@ -32,7 +26,7 @@ struct ProfileMenuRow: View {
 
                 Asset.Icon.Profile.chevronRight.image
                     .resizable()
-                    .frame(width: 24, height: 24)
+                    .frame(width: 30.iPad(35), height: 30.iPad(35))
             }
             .padding(.vertical, Layout.Spacing.s + Layout.Spacing.xs)
         }
@@ -40,7 +34,6 @@ struct ProfileMenuRow: View {
     }
 }
 
-/// Groups menu rows into one white 16pt-radius card, matching the two stacks in the design.
 struct ProfileMenuCard<Content: View>: View {
     @ViewBuilder var content: Content
 
