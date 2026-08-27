@@ -56,7 +56,27 @@ struct ContentView: View {
     @State var currentTab: Tab = .practice
 
     var body: some View {
-        VStack(spacing: 0) {
+        ZStack(alignment: .top) {
+            Asset.Color.bgPrimary.color
+                .ignoresSafeArea()
+
+            if currentTab == .profile {
+                LinearGradient(
+                    colors: [
+                        Color(hex: "#D6D9FF"),
+                        Color(hex: "#F4EAFE"),
+                        Asset.Color.bgPrimary.color
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: UIScreen.main.bounds.height / 3)
+                .ignoresSafeArea(edges: .top)
+            }
+
+
+            VStack(spacing: 0) {
             if currentTab != .profile {
                 header()
             }
@@ -82,9 +102,9 @@ case .practice:
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Asset.Color.bgPrimary.color.ignoresSafeArea())
         .overlay(alignment: .bottom) {
             tabBar()
         }

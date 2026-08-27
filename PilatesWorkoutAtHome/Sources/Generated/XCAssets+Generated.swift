@@ -45,8 +45,8 @@ internal enum Asset {
     internal static let mainColor = ColorAsset(name: "mainColor")
     internal static let optionBorder = ColorAsset(name: "optionBorder")
     internal static let primary = ColorAsset(name: "primary")
-internal static let secondPurpleLight = ColorAsset(name: "secondPurpleLight")
-        internal static let rowSelected = ColorAsset(name: "rowSelected")
+    internal static let rowSelected = ColorAsset(name: "rowSelected")
+    internal static let secondPurpleLight = ColorAsset(name: "secondPurpleLight")
     internal static let secondaryColor = ColorAsset(name: "secondaryColor")
     internal static let secondaryTint = ColorAsset(name: "secondaryTint")
     internal static let textBrandPrimary = ColorAsset(name: "textBrandPrimary")
@@ -170,6 +170,7 @@ internal static let secondPurpleLight = ColorAsset(name: "secondPurpleLight")
       internal static let generatingPlanIllustration = ImageAsset(name: "generatingPlanIllustration")
     }
     internal enum Setting {
+      internal static let backgroundAvatar = ImageAsset(name: "backgroundAvatar")
       internal static let imageBackground = ImageAsset(name: "imageBackground")
     }
     internal static let gallery1 = ImageAsset(name: "gallery_1")

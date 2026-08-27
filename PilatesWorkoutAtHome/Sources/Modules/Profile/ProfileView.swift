@@ -48,7 +48,7 @@ struct ProfileView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Asset.Color.bgPrimary.color.ignoresSafeArea())
+        .background(Color.clear.ignoresSafeArea())
         .onAppear(perform: viewModel.reload)
         .trackScreen("profileVC")
     }
@@ -88,6 +88,11 @@ struct ProfileView: View {
                 .foregroundStyle(Asset.Color.textPrimary.color)
         }
         .padding(.top, Layout.Spacing.m)
+        .background(
+            Asset.Image.Setting.backgroundAvatar.image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            )
     }
 }
 
