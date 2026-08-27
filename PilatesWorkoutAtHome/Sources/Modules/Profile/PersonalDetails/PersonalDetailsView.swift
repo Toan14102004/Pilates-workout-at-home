@@ -22,7 +22,7 @@ struct PersonalDetailsView: View {
                     nameField
                     measurements
 
-                    PreloadedNativeAdsView(adKey: .profileMedium, style: .medium, height: NativeAdViewStyle.medium.height)
+                    PreloadedNativeAdsView(adKey: .profileMedium, style: .contentCard, height: NativeAdViewStyle.contentCard.height)
                 }
                 .padding(.horizontal, Layout.Spacing.m)
                 .padding(.bottom, Layout.Spacing.xl)
