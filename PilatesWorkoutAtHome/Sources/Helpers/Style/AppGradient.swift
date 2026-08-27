@@ -23,6 +23,16 @@ enum AppGradient {
         )
     }
 
+    /// "Premium Access" card on the Profile tab (Figma: FLow Profile / 01 — Overview).
+    /// #FFB5CA -> #FFA220, horizontal (leading to trailing).
+    static var premiumCard: LinearGradient {
+        LinearGradient(
+            colors: [Color(hex: "#FFB5CA"), Color(hex: "#FFA220")],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+
     /// UIKit equivalent for views that aren't SwiftUI (e.g. native ad templates).
     static func makeCAGradientLayer() -> CAGradientLayer {
         let layer = CAGradientLayer()

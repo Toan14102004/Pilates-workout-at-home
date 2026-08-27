@@ -57,19 +57,24 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            header()
+            if currentTab != .profile {
+                header()
+            }
 
             TabView(selection: $currentTab) {
                 ForEach(Tab.allCases, id: \.self) { tab in
                     Group {
                         switch tab {
-                        case .practice:
+case .practice:
                             PracticeHomeView()
                         case .discover:
                             DiscoverHomeView()
                         case .progress:
                             ProgressHomeView()
                         case .profile:
+                            ProfileView()
+                        default:
+                            // TODO: replace with real screens as each flow lands (see 7-day sprint plan).
                             placeholderContent(for: tab)
                         }
                     }
@@ -96,7 +101,7 @@ struct ContentView: View {
                 SettingView(viewModel: .init())
             case .languageView:
                 LanguageView(viewModel: .init())
-            case let .workoutSchedule(programId):
+case let .workoutSchedule(programId):
                 WorkoutScheduleView(programId: programId)
             case let .workoutDay(workoutId):
                 WorkoutDayView(workoutId: workoutId)
@@ -124,6 +129,12 @@ struct ContentView: View {
                 )
             case .progressStreak:
                 ProgressStreakView()
+        case .personalDetails:
+                PersonalDetailsView()
+            case .workoutSettings:
+                WorkoutSettingsView()
+            case .reminder:
+                ReminderView()
             }
         }
         .popup(item: $viewModel.coordinator.alert) { item in

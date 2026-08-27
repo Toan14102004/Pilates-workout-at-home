@@ -39,6 +39,7 @@ protocol UserDefaultService: AnyObject {
     var profileSetupMediumAd: AdPlacement { get set }
     var practiceCompactAd: AdPlacement { get set }
     var discoverCompactAd: AdPlacement { get set }
+    var profileMediumAd: AdPlacement { get set }
 
     // PilatesWorkoutAtHome - Rewarded
     var discoverUnlockRewardedAd: AdPlacement { get set }
@@ -52,6 +53,7 @@ protocol UserDefaultService: AnyObject {
 
     // Profile Setup
     var profileSetupAnswers: ProfileSetupAnswers { get set }
+
     /// Stable per-install identity, shared by every endpoint that needs a `deviceId`
     /// (`/activities/*`, `/workouts/{id}/progress`, `/workouts/suggestions`).
     var deviceId: String { get }
@@ -67,6 +69,12 @@ protocol UserDefaultService: AnyObject {
     var exerciseDurationOverrides: [String: Int] { get set }
     var workoutCompletedCounts: [String: Int] { get set }
     var unlockedWorkoutIds: [String] { get set }
+
+    // Profile
+    var userProfile: UserProfile { get set }
+    var profileWorkoutSettings: ProfileWorkoutSettings { get set }
+    var workoutReminders: [WorkoutReminder] { get set }
+    var hasSeededReminders: Bool { get set }
 }
 
 private enum Keys {
@@ -101,6 +109,7 @@ private enum Keys {
     static let profileSetupMediumAd = "profile_setup_medium_ad"
     static let practiceCompactAd = "practice_compact_ad"
     static let discoverCompactAd = "discover_compact_ad"
+    static let profileMediumAd = "profile_medium_ad"
 
     // API Configuration
     static let foodScanBaseURL = "food_scan_base_url"
@@ -110,6 +119,8 @@ private enum Keys {
 
     // Profile Setup
     static let profileSetupAnswers = "profile_setup_answers"
+
+    // Device registration
     static let deviceId = "device_id"
     static let isDeviceRegistered = "is_device_registered"
     static let dailyCalorieGoal = "daily_calorie_goal"
@@ -126,6 +137,12 @@ private enum Keys {
 
     // PilatesWorkoutAtHome - Rewarded
     static let discoverUnlockRewardedAd = "discover_unlock_rewarded_ad"
+
+    // Profile
+    static let userProfile = "user_profile"
+    static let profileWorkoutSettings = "profile_workout_settings"
+    static let workoutReminders = "workout_reminders"
+    static let hasSeededReminders = "has_seeded_reminders"
 }
 
 class LocalStorageService: UserDefaultService {
@@ -233,7 +250,7 @@ class LocalStorageService: UserDefaultService {
     var profileSetupMediumAd: AdPlacement
 
     @ObjectUserDefaultWrapper(
-        key: Keys.practiceCompactAd,
+key: Keys.practiceCompactAd,
         defaultValue: AdPlacement(id: "ca-app-pub-3940256099942544/2247696110", isEnabled: true)
     )
     var practiceCompactAd: AdPlacement
@@ -253,6 +270,12 @@ class LocalStorageService: UserDefaultService {
     )
     var discoverUnlockRewardedAd: AdPlacement
 
+    @ObjectUserDefaultWrapper(
+        key: Keys.profileMediumAd,
+        defaultValue: AdPlacement(id: "ca-app-pub-3940256099942544/2247696110", isEnabled: true)
+    )
+    var profileMediumAd: AdPlacement
+
     // MARK: - PilatesWorkoutAtHome Limit
     @UserDefaultWrapper(key: Keys.maxFreeIdentityScan, defaultValue: 3)
     var maxFreeIdentityScan: Int
@@ -261,7 +284,7 @@ class LocalStorageService: UserDefaultService {
     @ObjectUserDefaultWrapper(key: Keys.profileSetupAnswers, defaultValue: ProfileSetupAnswers())
     var profileSetupAnswers: ProfileSetupAnswers
 
-    // MARK: - Device identity
+// MARK: - Device identity
     /// Backing storage for `deviceId`. `ObjectUserDefaultWrapper`'s `defaultValue` is only ever
     /// *returned* on a cache miss, never written -- if `deviceId` used it directly with a fresh
     /// `UUID()`, every relaunch before the first explicit write would mint a new, different id,
@@ -320,4 +343,18 @@ class LocalStorageService: UserDefaultService {
     /// entirely -- see `WorkoutUnlockStore` -- so it only ever grows for free users.
     @ObjectUserDefaultWrapper(key: Keys.unlockedWorkoutIds, defaultValue: [])
     var unlockedWorkoutIds: [String]
+    // MARK: - Profile
+    @ObjectUserDefaultWrapper(key: Keys.userProfile, defaultValue: UserProfile())
+    var userProfile: UserProfile
+
+    /// The Profile tab's own Workout Settings -- see `ProfileWorkoutSettings`'s doc comment for
+    /// why this is a separate property/type from `workoutSettings` above.
+    @ObjectUserDefaultWrapper(key: Keys.profileWorkoutSettings, defaultValue: ProfileWorkoutSettings())
+    var profileWorkoutSettings: ProfileWorkoutSettings
+
+    @ObjectUserDefaultWrapper(key: Keys.workoutReminders, defaultValue: [])
+    var workoutReminders: [WorkoutReminder]
+
+    @UserDefaultWrapper(key: Keys.hasSeededReminders, defaultValue: false)
+    var hasSeededReminders: Bool
 }
