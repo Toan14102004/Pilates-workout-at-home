@@ -96,14 +96,13 @@ internal enum Asset {
       internal static let unlock = ImageAsset(name: "unlock")
     }
     internal enum Language {
-      internal static let english = ImageAsset(name: "english")
       internal static let french = ImageAsset(name: "french")
-      internal static let germany = ImageAsset(name: "germany")
       internal static let hindi = ImageAsset(name: "hindi")
       internal static let japanese = ImageAsset(name: "japanese")
       internal static let korea = ImageAsset(name: "korea")
-      internal static let portuguese = ImageAsset(name: "portuguese")
+      internal static let russia = ImageAsset(name: "russia")
       internal static let spanish = ImageAsset(name: "spanish")
+      internal static let us = ImageAsset(name: "us")
     }
     internal enum Profile {
       internal static let avatarPlaceholder = ImageAsset(name: "avatarPlaceholder")

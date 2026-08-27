@@ -43,10 +43,10 @@ struct Language: Identifiable, Equatable {
         Language(code: "ko", name: "Korean", countryCode: "KR", flagAsset: Asset.Icon.Language.korea),
         Language(code: "ja", name: "Japan", countryCode: "JP", flagAsset: Asset.Icon.Language.japanese),
         Language(code: "fr", name: "French", countryCode: "FR", flagAsset: Asset.Icon.Language.french),
-        Language(code: "ru", name: "Russian", countryCode: "RU", flagEmoji: "🇷🇺"),
+        Language(code: "ru", name: "Russian", countryCode: "RU", flagAsset: Asset.Icon.Language.russia),
         Language(code: "es", name: "Spanish", countryCode: "ES", flagAsset: Asset.Icon.Language.spanish),
         Language(code: "hi", name: "Hindi", countryCode: "IN", flagAsset: Asset.Icon.Language.hindi),
-        Language(code: "en", name: "English", countryCode: "US", flagAsset: Asset.Icon.Language.english)
+        Language(code: "en", name: "English", countryCode: "US", flagAsset: Asset.Icon.Language.us)
     ]
 }
 
