@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-/// The 120pt "Premium Access" upsell card at the top of the Profile tab.
 struct PremiumAccessCard: View {
     let action: () -> Void
 
@@ -44,7 +43,7 @@ struct PremiumAccessCard: View {
                 Asset.Icon.Profile.crownPremium.image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 136, height: 126)
+                    .frame(width: 120, height: 116)
             }
             .padding(Layout.Spacing.m)
             .frame(height: 120)
