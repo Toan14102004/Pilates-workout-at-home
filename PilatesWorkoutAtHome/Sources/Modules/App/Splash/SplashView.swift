@@ -113,7 +113,7 @@ private extension SplashView {
     
     func handlePushNext() {
         guard didRequestAppTracking && isRemoteConfigReady && !subscriptionManager.isLoading && !hasNavigated else { return }
-        
+
         guard localStorageService.isFirstTimeOpenApp else {
             if localStorageService.isDisplayPremiumAfterSplash && !subscriptionManager.isSubscribed {
                 showSplashInter {
