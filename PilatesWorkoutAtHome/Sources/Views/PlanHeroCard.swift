@@ -32,8 +32,11 @@ struct PlanHeroCard: View {
 
             LinearGradient(
                 colors: [
+                    Asset.Color.white.color,
+                    Asset.Color.white.color,
                     Asset.Color.white.color.opacity(0.85),
-                    Asset.Color.white.color.opacity(0.4),
+                    Asset.Color.white.color.opacity(0.75),
+                    Asset.Color.white.color.opacity(0.45),
                     .clear
                 ],
                 startPoint: .leading,
@@ -93,6 +96,10 @@ struct PlanHeroCard: View {
             .padding(.vertical, Layout.Spacing.s)
             .background(Asset.Color.white.color)
             .clipShape(Capsule())
+            .overlay(
+                    Capsule()
+                        .stroke(Asset.Color.mainColor.color, lineWidth: 0.8)
+                )
         }
     }
 }
