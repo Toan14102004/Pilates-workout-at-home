@@ -41,17 +41,22 @@ internal enum Asset {
     internal static let borderPrimary = ColorAsset(name: "borderPrimary")
     internal static let gray = ColorAsset(name: "gray")
     internal static let grayText = ColorAsset(name: "gray_text")
+    internal static let iconSurface = ColorAsset(name: "iconSurface")
     internal static let mainColor = ColorAsset(name: "mainColor")
     internal static let optionBorder = ColorAsset(name: "optionBorder")
     internal static let primary = ColorAsset(name: "primary")
+    internal static let rowSelected = ColorAsset(name: "rowSelected")
     internal static let secondPurpleLight = ColorAsset(name: "secondPurpleLight")
     internal static let secondaryColor = ColorAsset(name: "secondaryColor")
     internal static let secondaryTint = ColorAsset(name: "secondaryTint")
     internal static let textBrandPrimary = ColorAsset(name: "textBrandPrimary")
     internal static let textDisable = ColorAsset(name: "textDisable")
+    internal static let textNavy = ColorAsset(name: "textNavy")
     internal static let textPrimary = ColorAsset(name: "textPrimary")
     internal static let textSecondary = ColorAsset(name: "textSecondary")
     internal static let textTertiary = ColorAsset(name: "textTertiary")
+    internal static let toggleTrackOn = ColorAsset(name: "toggleTrackOn")
+    internal static let trackInactive = ColorAsset(name: "trackInactive")
     internal static let white = ColorAsset(name: "white")
   }
   internal enum Icon {
@@ -100,6 +105,30 @@ internal enum Asset {
       internal static let portuguese = ImageAsset(name: "portuguese")
       internal static let spanish = ImageAsset(name: "spanish")
     }
+    internal enum Profile {
+      internal static let avatarPlaceholder = ImageAsset(name: "avatarPlaceholder")
+      internal static let button = ImageAsset(name: "button")
+      internal static let cameraBadge = ImageAsset(name: "cameraBadge")
+      internal static let chevronRight = ImageAsset(name: "chevronRight")
+      internal static let crownPremium = ImageAsset(name: "crownPremium")
+      internal static let fireStreak = ImageAsset(name: "fireStreak")
+      internal static let menuInviteFriends = ImageAsset(name: "menuInviteFriends")
+      internal static let menuLanguage = ImageAsset(name: "menuLanguage")
+      internal static let menuPrivacy = ImageAsset(name: "menuPrivacy")
+      internal static let menuProfile = ImageAsset(name: "menuProfile")
+      internal static let menuRateUs = ImageAsset(name: "menuRateUs")
+      internal static let menuReminder = ImageAsset(name: "menuReminder")
+      internal static let menuTerms = ImageAsset(name: "menuTerms")
+      internal static let menuWorkoutSettings = ImageAsset(name: "menuWorkoutSettings")
+      internal static let playPause = ImageAsset(name: "playPause")
+      internal static let plusIcon = ImageAsset(name: "plusIcon")
+      internal static let premiumSparkle = ImageAsset(name: "premiumSparkle")
+      internal static let radioCircle = ImageAsset(name: "radioCircle")
+      internal static let soundWave = ImageAsset(name: "soundWave")
+      internal static let tickCircle = ImageAsset(name: "tickCircle")
+      internal static let volumeMax = ImageAsset(name: "volumeMax")
+      internal static let volumeMin = ImageAsset(name: "volumeMin")
+    }
     internal enum ProfileSetup {
       internal static let backChevron = ImageAsset(name: "backChevron")
     }
@@ -141,6 +170,7 @@ internal enum Asset {
       internal static let generatingPlanIllustration = ImageAsset(name: "generatingPlanIllustration")
     }
     internal enum Setting {
+      internal static let backgroundAvatar = ImageAsset(name: "backgroundAvatar")
       internal static let imageBackground = ImageAsset(name: "imageBackground")
     }
     internal static let gallery1 = ImageAsset(name: "gallery_1")

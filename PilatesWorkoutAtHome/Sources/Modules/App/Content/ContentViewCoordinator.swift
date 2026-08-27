@@ -18,7 +18,7 @@ extension ContentView {
     enum Navigation: BaseNavigation {
       case settingView
       case languageView
-      case workoutSchedule(programId: String)
+case workoutSchedule(programId: String)
       case workoutDay(workoutId: String)
       case exerciseDetail(workoutId: String, exerciseId: String)
       case workoutSession(workoutId: String)
@@ -39,6 +39,9 @@ extension ContentView {
         initialCalories: Double
       )
       case progressStreak
+        case personalDetails
+      case workoutSettings
+      case reminder
     }
 
     var alert: Alert?

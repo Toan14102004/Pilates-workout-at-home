@@ -56,20 +56,45 @@ struct ContentView: View {
     @State var currentTab: Tab = .practice
 
     var body: some View {
-        VStack(spacing: 0) {
-            header()
+        ZStack(alignment: .top) {
+            Asset.Color.bgPrimary.color
+                .ignoresSafeArea()
+
+            if currentTab == .profile {
+                LinearGradient(
+                    colors: [
+                        Color(hex: "#D6D9FF"),
+                        Color(hex: "#F4EAFE"),
+                        Asset.Color.bgPrimary.color
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: UIScreen.main.bounds.height / 3)
+                .ignoresSafeArea(edges: .top)
+            }
+
+
+            VStack(spacing: 0) {
+            if currentTab != .profile {
+                header()
+            }
 
             TabView(selection: $currentTab) {
                 ForEach(Tab.allCases, id: \.self) { tab in
                     Group {
                         switch tab {
-                        case .practice:
+case .practice:
                             PracticeHomeView()
                         case .discover:
                             DiscoverHomeView()
                         case .progress:
                             ProgressHomeView()
                         case .profile:
+                            ProfileView()
+                        default:
+                            // TODO: replace with real screens as each flow lands (see 7-day sprint plan).
                             placeholderContent(for: tab)
                         }
                     }
@@ -77,9 +102,9 @@ struct ContentView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Asset.Color.bgPrimary.color.ignoresSafeArea())
         .overlay(alignment: .bottom) {
             tabBar()
         }
@@ -96,7 +121,7 @@ struct ContentView: View {
                 SettingView(viewModel: .init())
             case .languageView:
                 LanguageView(viewModel: .init())
-            case let .workoutSchedule(programId):
+case let .workoutSchedule(programId):
                 WorkoutScheduleView(programId: programId)
             case let .workoutDay(workoutId):
                 WorkoutDayView(workoutId: workoutId)
@@ -124,6 +149,12 @@ struct ContentView: View {
                 )
             case .progressStreak:
                 ProgressStreakView()
+        case .personalDetails:
+                PersonalDetailsView()
+            case .workoutSettings:
+                WorkoutSettingsView()
+            case .reminder:
+                ReminderView()
             }
         }
         .popup(item: $viewModel.coordinator.alert) { item in

@@ -178,6 +178,7 @@ extension SubscriptionView {
         
         @Injected var analyticsService: AnalyticsService
         @Injected var subscriptionManager: SubscriptionManager
+        @Injected var localStorageService: LocalStorageService
 
         @Published var coordinator: Coordinator = .init()
         @Published var selectedProductId: String = ""
@@ -216,6 +217,7 @@ extension SubscriptionView {
         func goBack() {
             analyticsService.logEvent(name: subscriptionEntryPoint.cancelEventName)
             if subscriptionEntryPoint == .onboarding || subscriptionEntryPoint == .onboardingSecond {
+                localStorageService.isFirstTimeOpenApp = false
                 navigator.push(RootView.Coordinator.Navigation.content)
             } else {
                 navigator.dismiss()
@@ -249,6 +251,7 @@ extension SubscriptionView {
         func onSubscriptionSuccess() {
             coordinator.alert = nil
             if subscriptionEntryPoint == .onboarding || subscriptionEntryPoint == .onboardingSecond {
+                localStorageService.isFirstTimeOpenApp = false
                 navigator.push(RootView.Coordinator.Navigation.content)
             } else {
                 navigator.dismiss()
