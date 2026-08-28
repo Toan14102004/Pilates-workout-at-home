@@ -5,6 +5,7 @@
 //  Created by Toan Nguyen on 21/8/26.
 //
 
+import Lottie
 import SwiftUI
 
 struct GeneratingPlanStepView: View {
@@ -27,17 +28,9 @@ struct GeneratingPlanStepView: View {
                     }
                 }
 
-                ZStack {
-                    Asset.Image.ProfileSetup.generatingPlanIllustration.image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 151, height: 165)
-                        .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large))
-
-                    ActivityIndicatorView(isVisible: .constant(true), type: .default(count: 8))
-                        .foregroundColor(Asset.Color.mainColor.color)
-                        .frame(width: 64, height: 64)
-                }
+                LottieView(animation: .named("Sparkles_Loop_Loader.json"))
+                    .looping()
+                    .frame(width: 180, height: 180)
 
                 Text("This may take a few moments…")
                     .font(Typography.bodySmall)

@@ -5,6 +5,7 @@
 //  Created by Toan Nguyen on 25/8/26.
 //
 
+import Lottie
 import SwiftUI
 
 /// The guided workout, following the Flow Practice screens in Figma: a Get ready countdown, then
@@ -321,9 +322,9 @@ struct WorkoutSessionView: View {
         VStack(spacing: Layout.Spacing.m) {
             Spacer()
 
-            // TODO: swap for the confetti + trophy illustration once it can be exported from Figma.
-            Text("🏆")
-                .font(.system(size: 72))
+            LottieView(animation: .named("Trophy_Confetti.json"))
+                .looping()
+                .frame(width: 200, height: 200)
 
             Text("All Done!")
                 .font(.custom("Didot-Bold", size: 26))
