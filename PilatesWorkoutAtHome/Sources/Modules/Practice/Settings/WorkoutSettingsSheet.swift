@@ -9,6 +9,9 @@ import SwiftUI
 
 struct WorkoutSettingsSheet: View {
     @ObservedObject var viewModel: ViewModel
+    /// Observed directly (rather than proxied through the view model) so the play/pause icon
+    /// updates live as this shared player's state changes.
+    @ObservedObject private var musicPlayer = BackgroundMusicPlayer.shared
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -28,6 +31,8 @@ struct WorkoutSettingsSheet: View {
         .padding(.vertical, 32)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Asset.Color.white.color.ignoresSafeArea())
+        .onAppear(perform: viewModel.load)
+        .onDisappear(perform: viewModel.stopPreview)
     }
 
     // MARK: - Header
@@ -133,7 +138,7 @@ struct WorkoutSettingsSheet: View {
                     .foregroundStyle(Asset.Color.textPrimary.color)
                     .frame(width: 24, height: 24)
 
-                Text(viewModel.selectedTrack.title)
+                Text(viewModel.selectedTrack?.title ?? "Loading…")
                     .font(Typography.bodyMedium)
                     .foregroundStyle(Asset.Color.textPrimary.color)
                     .lineLimit(1)
@@ -142,10 +147,12 @@ struct WorkoutSettingsSheet: View {
 
                 HStack(spacing: 12) {
                     trackButton(systemImage: "chevron.left", background: .white, action: viewModel.previousTrack)
-                    Image(systemName: "pause.fill")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Asset.Color.textPrimary.color)
-                        .frame(width: 24, height: 24)
+                    Button(action: viewModel.togglePlayback) {
+                        Image(systemName: musicPlayer.isPlaying ? "pause.fill" : "play.fill")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Asset.Color.textPrimary.color)
+                            .frame(width: 24, height: 24)
+                    }
                     trackButton(systemImage: "chevron.right", background: .white, action: viewModel.nextTrack)
                 }
             }
@@ -235,7 +242,7 @@ struct WorkoutSettingsSheet: View {
         }
     }
 
-    private func songRow(_ track: WorkoutTrack) -> some View {
+    private func songRow(_ track: BackgroundMusic) -> some View {
         let isSelected = track.id == viewModel.settings.selectedTrackId
 
         return Button {
