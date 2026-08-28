@@ -24,15 +24,19 @@ struct ExerciseVideoPlayer: UIViewRepresentable {
 
     let url: URL
     var mode: Mode = .browsing
+    /// Fires `true` while the clip is actually moving and `false` when it's paused or has
+    /// played through to the end -- lets a host screen (Exercise Detail) keep its own
+    /// background music in step with the demo clip rather than looping on regardless.
+    var onPlaybackStateChange: ((Bool) -> Void)?
 
     func makeUIView(context _: Context) -> ExerciseClipView {
         let view = ExerciseClipView()
-        view.configure(url: url, mode: mode)
+        view.configure(url: url, mode: mode, onPlaybackStateChange: onPlaybackStateChange)
         return view
     }
 
     func updateUIView(_ uiView: ExerciseClipView, context _: Context) {
-        uiView.configure(url: url, mode: mode)
+        uiView.configure(url: url, mode: mode, onPlaybackStateChange: onPlaybackStateChange)
     }
 
     static func dismantleUIView(_ uiView: ExerciseClipView, coordinator _: ()) {
@@ -58,9 +62,13 @@ final class ExerciseClipView: UIView {
     private var currentURL: URL?
     private var hideWork: DispatchWorkItem?
     private var mode: ExerciseVideoPlayer.Mode = .browsing
+    private var onPlaybackStateChange: ((Bool) -> Void)?
 
     private var state: PlaybackState = .paused {
-        didSet { updatePlayPauseIcon() }
+        didSet {
+            updatePlayPauseIcon()
+            onPlaybackStateChange?(state == .playing)
+        }
     }
 
     private let controlsRow = UIStackView()
@@ -87,7 +95,9 @@ final class ExerciseClipView: UIView {
 
     // MARK: - Playback
 
-    func configure(url: URL, mode: ExerciseVideoPlayer.Mode) {
+    func configure(url: URL, mode: ExerciseVideoPlayer.Mode, onPlaybackStateChange: ((Bool) -> Void)? = nil) {
+        self.onPlaybackStateChange = onPlaybackStateChange
+
         if url == currentURL {
             apply(mode: mode)
             return
