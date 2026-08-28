@@ -24,6 +24,7 @@ extension WorkoutSessionView {
         @Navigation var navigator
         @Injected var workoutService: WorkoutService
         @Injected var progressStore: WorkoutProgressStore
+        @Injected var localStorageService: LocalStorageService
 
         @Published var coordinator = Coordinator()
         @Published var exercises: [WorkoutExercise] = []
@@ -47,6 +48,7 @@ extension WorkoutSessionView {
         private let workoutId: String
         private var timerCancellable: AnyCancellable?
         private var cancellables = Set<AnyCancellable>()
+        private let musicPlayer = BackgroundMusicPlayer.shared
 
         init(workoutId: String) {
             self.workoutId = workoutId
@@ -117,7 +119,21 @@ extension WorkoutSessionView {
                     // Resuming picks up at the first exercise not already done.
                     index = day.exercises.firstIndex { !self.progressStore.isExerciseCompleted($0.id, in: self.workoutId) } ?? 0
                     beginGetReady()
+                    startBackgroundMusic()
                 }
+                .store(in: &cancellables)
+        }
+
+        /// Plays the track chosen in Workout Settings for the length of the session -- it loops
+        /// since a single track rarely covers a full workout.
+        private func startBackgroundMusic() {
+            let settings = localStorageService.workoutSettings
+            BackgroundMusicService.shared.fetchBackgroundMusic()
+                .receive(on: DispatchQueue.main)
+                .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] tracks in
+                    guard let self, let track = tracks.first(where: { $0.id == settings.selectedTrackId }) ?? tracks.first else { return }
+                    self.musicPlayer.play(track, volume: Float(settings.musicVolume), loop: true)
+                })
                 .store(in: &cancellables)
         }
 
@@ -171,6 +187,7 @@ extension WorkoutSessionView {
         private func finish() {
             stopTimer()
             phase = .completed
+            musicPlayer.stop()
             progressStore.markWorkoutCompleted(workoutId: workoutId, exercises: exercises, elapsedSeconds: elapsedSeconds)
         }
 
@@ -190,6 +207,7 @@ extension WorkoutSessionView {
 
         private func tick() {
             guard !isStopped else { return }
+            musicPlayer.ensurePlaying()
 
             if phase == .exercise {
                 elapsedSeconds += 1
@@ -217,6 +235,7 @@ extension WorkoutSessionView {
         func togglePause() {
             guard phase != .completed else { return }
             isPaused.toggle()
+            isPaused ? musicPlayer.pause() : musicPlayer.resume()
         }
 
         /// Back asks before throwing away a session in progress.
@@ -226,24 +245,28 @@ extension WorkoutSessionView {
                 return
             }
             showsPauseOptions = true
+            musicPlayer.pause()
         }
 
         /// "Keep exercising" -- picks the session back up exactly where it stopped.
         func resume() {
             showsPauseOptions = false
             isPaused = false
+            musicPlayer.resume()
         }
 
         /// "Restart this exercise" -- same exercise, clock back to the top.
         func restartCurrentExercise() {
             showsPauseOptions = false
             isPaused = false
+            musicPlayer.resume()
             beginExercise()
         }
 
         /// "Do it later" -- leaves the session; progress up to here is already saved.
         func doItLater() {
             stopTimer()
+            musicPlayer.stop()
             navigator.goBack()
         }
 
@@ -251,6 +274,7 @@ extension WorkoutSessionView {
         func handleScenePhaseChange(isActive: Bool) {
             guard !isActive, phase != .completed else { return }
             isPaused = true
+            musicPlayer.pause()
         }
 
         /// Skips the Get ready countdown, or the rest interval.
@@ -307,6 +331,7 @@ extension WorkoutSessionView {
 
         func exit() {
             stopTimer()
+            musicPlayer.stop()
             navigator.goBack()
         }
     }
