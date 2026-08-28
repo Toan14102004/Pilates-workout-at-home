@@ -13,7 +13,7 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 0) {
             TabView(selection: $viewModel.currentPage) {
-                heroImage
+                Color.clear
                     .tag(0)
                 galleryImages
                     .tag(1)
@@ -21,8 +21,22 @@ struct OnboardingView: View {
                     .tag(2)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .ignoresSafeArea(edges: .top)
             .animation(.easeInOut, value: viewModel.currentPage)
+            .background {
+                // TabView(.page) clips its page content to the safe area regardless of
+                // `.ignoresSafeArea`, so the hero can't bleed under the status bar from inside
+                // a page. Rendering it as a background behind the TabView instead, sized to
+                // just the TabView (not the footer below it).
+                Group {
+                    if viewModel.currentPage == 0 {
+                        heroImage
+                    } else {
+                        Asset.Color.bgPrimary.color
+                    }
+                }
+                .animation(.easeInOut, value: viewModel.currentPage)
+                .ignoresSafeArea(edges: .top)
+            }
 
             footer
         }
@@ -30,6 +44,7 @@ struct OnboardingView: View {
         .background(Asset.Color.bgPrimary.color.ignoresSafeArea())
         .colorScheme(.light)
         .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .trackScreen("onboardingVC")
     }
@@ -38,7 +53,7 @@ struct OnboardingView: View {
         Asset.Image.onboardingHero.image
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .clipped()
             .overlay(alignment: .bottom) { bottomFade.frame(height: 214) }
     }
