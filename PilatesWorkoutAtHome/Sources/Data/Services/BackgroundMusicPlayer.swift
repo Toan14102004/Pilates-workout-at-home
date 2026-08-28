@@ -18,12 +18,19 @@ final class BackgroundMusicPlayer: ObservableObject {
     static let shared = BackgroundMusicPlayer()
 
     @Published private(set) var isPlaying = false
+    /// Only meaningful for a caller tracking playback progress (the Profile settings screen's
+    /// scrub bar); the session and other previews ignore these.
+    @Published private(set) var currentTime: TimeInterval = 0
+    @Published private(set) var duration: TimeInterval = 0
 
     private var player: AVPlayer?
     private var currentTrackId: String?
-    private var loopObserver: NSObjectProtocol?
+    private var endObserver: NSObjectProtocol?
     private var interruptionObserver: NSObjectProtocol?
+    private var timeObserverToken: Any?
+    private var durationCancellable: AnyCancellable?
     private var pendingVolume: Float = 1
+    private var onFinished: (() -> Void)?
 
     init() {
         interruptionObserver = NotificationCenter.default.addObserver(
@@ -41,12 +48,16 @@ final class BackgroundMusicPlayer: ObservableObject {
         }
     }
 
-    /// - Parameter loop: Workout sessions run longer than any single track, so the session
-    ///   player loops; a settings preview just plays through once.
-    func play(_ track: BackgroundMusic, volume: Float, loop: Bool = false) {
+    /// - Parameters:
+    ///   - loop: Workout sessions run longer than any single track, so the session player loops
+    ///     the same track; a settings preview just plays through once.
+    ///   - onFinished: Called once the track plays to the end, but only when `loop` is false --
+    ///     the Profile settings screen uses this to advance to the next track.
+    func play(_ track: BackgroundMusic, volume: Float, loop: Bool = false, onFinished: (() -> Void)? = nil) {
         guard let url = URL(string: track.audioUrl) else { return }
 
         pendingVolume = volume
+        self.onFinished = onFinished
         activateAudioSession()
 
         if currentTrackId == track.id, let player {
@@ -64,14 +75,32 @@ final class BackgroundMusicPlayer: ObservableObject {
         player.volume = volume
         self.player = player
 
-        if loop {
-            loopObserver = NotificationCenter.default.addObserver(
-                forName: .AVPlayerItemDidPlayToEndTime,
-                object: item,
-                queue: .main
-            ) { [weak player] _ in
+        durationCancellable = item.publisher(for: \.duration)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] duration in
+                guard duration.isNumeric else { return }
+                self?.duration = duration.seconds
+            }
+
+        timeObserverToken = player.addPeriodicTimeObserver(
+            forInterval: CMTime(seconds: 0.25, preferredTimescale: 600),
+            queue: .main
+        ) { [weak self] time in
+            self?.currentTime = time.seconds
+        }
+
+        endObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: item,
+            queue: .main
+        ) { [weak self, weak player] _ in
+            guard let self else { return }
+            if loop {
                 player?.seek(to: .zero)
                 player?.play()
+            } else {
+                self.isPlaying = false
+                self.onFinished?()
             }
         }
 
@@ -107,15 +136,32 @@ final class BackgroundMusicPlayer: ObservableObject {
         player.play()
     }
 
+    /// Clamped to the track's known duration; a no-op before that duration has arrived.
+    func seek(to time: TimeInterval) {
+        guard let player, duration > 0 else { return }
+        let clamped = max(0, min(time, duration))
+        player.seek(to: CMTime(seconds: clamped, preferredTimescale: 600))
+        currentTime = clamped
+    }
+
     func stop() {
+        if let timeObserverToken {
+            player?.removeTimeObserver(timeObserverToken)
+        }
+        timeObserverToken = nil
+        durationCancellable = nil
+        if let endObserver {
+            NotificationCenter.default.removeObserver(endObserver)
+        }
+        endObserver = nil
+        onFinished = nil
+
         player?.pause()
         player = nil
         currentTrackId = nil
         isPlaying = false
-        if let loopObserver {
-            NotificationCenter.default.removeObserver(loopObserver)
-        }
-        loopObserver = nil
+        currentTime = 0
+        duration = 0
     }
 
     /// Re-asserts our category on every play/resume rather than once -- an ad SDK reconfiguring

@@ -33,6 +33,119 @@ private struct SoundWaveAnimation: View {
     }
 }
 
+/// The song card and scrub bar, split out of `WorkoutSettingsView` so they can observe
+/// `BackgroundMusicPlayer` directly. The player ticks `currentTime` at 4Hz; publishing that
+/// through the screen's own view model would invalidate the whole screen's body -- native ad
+/// included -- on every tick instead of just this section.
+private struct MusicPlayerSection: View {
+    @ObservedObject var viewModel: WorkoutSettingsView.ViewModel
+    @ObservedObject private var musicPlayer = BackgroundMusicPlayer.shared
+
+    var body: some View {
+        VStack(spacing: Layout.Spacing.s + Layout.Spacing.xs) {
+            musicCard
+            playbackBar
+        }
+    }
+
+    private var musicCard: some View {
+        HStack(spacing: Layout.Spacing.m) {
+            VStack(alignment: .leading, spacing: Layout.Spacing.s) {
+                HStack(spacing: Layout.Spacing.xs) {
+                    if musicPlayer.isPlaying {
+                        SoundWaveAnimation()
+                            .frame(width: 24, height: 24)
+                            .accessibilityLabel("Music playing")
+                    } else {
+                        Asset.Icon.Profile.soundWave.image
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .accessibilityHidden(true)
+                    }
+
+                    Text(viewModel.settings.songTitle)
+                        .font(Typography.bodyMedium)
+                        .foregroundStyle(Asset.Color.textPrimary.color)
+                        .lineLimit(1)
+                }
+
+                Button {
+                    viewModel.isPickingSong = true
+                } label: {
+                    Text("See All Songs")
+                        .font(FontFamily.Inter.medium.font(size: 12))
+                        .foregroundStyle(Asset.Color.mainColor.color)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            HStack(spacing: Layout.Spacing.s + Layout.Spacing.xs) {
+                Button(action: viewModel.previousTrack) {
+                    controlButton(Asset.Icon.ProfileSetup.backChevron.image, size: 16)
+                }
+
+                Button(action: viewModel.togglePlayback) {
+                    Image(systemName: musicPlayer.isPlaying ? "pause.fill" : "play.fill")
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(Asset.Color.textPrimary.color)
+                        .frame(width: 26, height: 26)
+                        .background(Asset.Color.white.color)
+                        .clipShape(Circle())
+                }
+
+                Button(action: viewModel.nextTrack) {
+                    controlButton(Asset.Icon.Profile.chevronRight.image, size: 16)
+                }
+            }
+        }
+        .padding(Layout.Spacing.s + Layout.Spacing.xs)
+        .frame(height: 72)
+        .background(Asset.Color.white.color)
+        .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large))
+    }
+
+    private var playbackBar: some View {
+        VStack(spacing: Layout.Spacing.m) {
+            Slider(value: Binding(get: { musicPlayer.currentTime }, set: { viewModel.seek(to: $0) }),
+                   in: 0...max(musicPlayer.duration, 1))
+                .tint(Asset.Color.mainColor.color)
+
+            HStack {
+                Text(formatTime(musicPlayer.currentTime))
+                    .font(Typography.bodySmall)
+                    .foregroundStyle(Asset.Color.textSecondary.color)
+
+                Spacer()
+
+                Text(formatTime(musicPlayer.duration))
+                    .font(Typography.bodySmall)
+                    .foregroundStyle(Asset.Color.textSecondary.color)
+            }
+        }
+        .padding(Layout.Spacing.s + Layout.Spacing.xs)
+        .background(Asset.Color.white.color)
+        .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large))
+    }
+
+    private func controlButton(_ image: Image, size: CGFloat) -> some View {
+        image
+            .resizable()
+            .frame(width: size, height: size)
+            .padding(Layout.Spacing.xs)
+            .frame(width: 26, height: 26)
+            .background(Asset.Color.white.color)
+            .clipShape(Circle())
+    }
+
+    private func formatTime(_ seconds: TimeInterval) -> String {
+        let totalSeconds = Int(seconds)
+        let minutes = totalSeconds / 60
+        let secs = totalSeconds % 60
+        return String(format: "%02d:%02d", minutes, secs)
+    }
+}
+
 struct WorkoutSettingsView: View {
     @StateObject var viewModel = ViewModel()
 
@@ -43,8 +156,7 @@ struct WorkoutSettingsView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: Layout.Spacing.m) {
                     section("Music") {
-                        musicCard
-                        playbackBar
+                        MusicPlayerSection(viewModel: viewModel)
                         volumeCard
                     }
 
@@ -92,100 +204,6 @@ struct WorkoutSettingsView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var musicCard: some View {
-        HStack(spacing: Layout.Spacing.m) {
-            VStack(alignment: .leading, spacing: Layout.Spacing.s) {
-                HStack(spacing: Layout.Spacing.xs) {
-                    if viewModel.isPlaying {
-                        SoundWaveAnimation()
-                            .frame(width: 24, height: 24)
-                            .accessibilityLabel("Music playing")
-                    } else {
-                        Asset.Icon.Profile.soundWave.image
-                            .resizable()
-                            .frame(width: 24, height: 24)
-                            .accessibilityHidden(true)
-                    }
-
-                    Text(viewModel.settings.songTitle)
-                        .font(Typography.bodyMedium)
-                        .foregroundStyle(Asset.Color.textPrimary.color)
-                        .lineLimit(1)
-                }
-
-                Button {
-                    viewModel.isPickingSong = true
-                } label: {
-                    Text("See All Songs")
-                        .font(FontFamily.Inter.medium.font(size: 12))
-                        .foregroundStyle(Asset.Color.mainColor.color)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            HStack(spacing: Layout.Spacing.s + Layout.Spacing.xs) {
-                Button(action: viewModel.previousTrack) {
-                    controlButton(Asset.Icon.ProfileSetup.backChevron.image, size: 16)
-                }
-
-                Button(action: viewModel.togglePlayback) {
-                    Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(Asset.Color.textPrimary.color)
-                        .frame(width: 26, height: 26)
-                        .background(Asset.Color.white.color)
-                        .clipShape(Circle())
-                }
-
-                Button(action: viewModel.nextTrack) {
-                    controlButton(Asset.Icon.Profile.chevronRight.image, size: 16)
-                }
-            }
-        }
-        .padding(Layout.Spacing.s + Layout.Spacing.xs)
-        .frame(height: 72)
-        .background(Asset.Color.white.color)
-        .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large))
-    }
-
-    private var playbackBar: some View {
-        VStack(spacing: Layout.Spacing.m) {
-            Slider(value: $viewModel.currentTime, in: 0...max(viewModel.duration, 1))
-                .tint(Asset.Color.mainColor.color)
-                .onChange(of: viewModel.currentTime) { _ in
-                    if viewModel.duration > 0 {
-                        viewModel.seek(to: viewModel.currentTime)
-                    }
-                }
-
-            HStack {
-                Text(formatTime(viewModel.currentTime))
-                    .font(Typography.bodySmall)
-                    .foregroundStyle(Asset.Color.textSecondary.color)
-
-                Spacer()
-
-                Text(formatTime(viewModel.duration))
-                    .font(Typography.bodySmall)
-                    .foregroundStyle(Asset.Color.textSecondary.color)
-            }
-        }
-        .padding(Layout.Spacing.s + Layout.Spacing.xs)
-        .background(Asset.Color.white.color)
-        .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.large))
-    }
-
-    private func controlButton(_ image: Image, size: CGFloat) -> some View {
-        image
-            .resizable()
-            .frame(width: size, height: size)
-            .padding(Layout.Spacing.xs)
-            .frame(width: 26, height: 26)
-            .background(Asset.Color.white.color)
-            .clipShape(Circle())
     }
 
     private var volumeCard: some View {
@@ -324,13 +342,6 @@ struct WorkoutSettingsView: View {
                 }
             }
         }
-    }
-
-    private func formatTime(_ seconds: TimeInterval) -> String {
-        let totalSeconds = Int(seconds)
-        let minutes = totalSeconds / 60
-        let secs = totalSeconds % 60
-        return String(format: "%02d:%02d", minutes, secs)
     }
 }
 
