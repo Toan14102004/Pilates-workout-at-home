@@ -10,11 +10,18 @@ import SwiftUI
 /// Shared body for the "Current Weight" and "Target Weight" steps — same input shape,
 /// different backing text binding, same `weightUnit` preference.
 struct WeightStepView: View {
+    enum WeightType { case current, target }
+
     @ObservedObject var viewModel: ProfileSetupView.ViewModel
     let text: Binding<String>
+    let type: WeightType
+
+    var errorText: String? {
+        type == .current ? viewModel.currentWeightErrorText : viewModel.targetWeightErrorText
+    }
 
     var body: some View {
-        ProfileSetupNumberInputCard(text: text) {
+        ProfileSetupNumberInputCard(text: text, errorText: errorText) {
             ProfileSetupUnitToggle(
                 options: [(WeightUnit.kilograms, "kg"), (WeightUnit.pounds, "lb")],
                 selection: Binding(
@@ -29,6 +36,13 @@ struct WeightStepView: View {
                 )
             )
             .frame(width: 160)
+        }
+        .onChange(of: text.wrappedValue) { _ in
+            if type == .current {
+                viewModel.validateWeight(text.wrappedValue, errorBinding: &viewModel.currentWeightErrorText)
+            } else {
+                viewModel.validateWeight(text.wrappedValue, errorBinding: &viewModel.targetWeightErrorText)
+            }
         }
     }
 }

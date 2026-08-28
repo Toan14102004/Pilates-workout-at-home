@@ -11,7 +11,7 @@ struct HeightStepView: View {
     @ObservedObject var viewModel: ProfileSetupView.ViewModel
 
     var body: some View {
-        ProfileSetupNumberInputCard(text: $viewModel.heightText) {
+        ProfileSetupNumberInputCard(text: $viewModel.heightText, errorText: viewModel.heightErrorText) {
             ProfileSetupUnitToggle(
                 options: [(HeightUnit.centimeters, "cm"), (HeightUnit.feetInches, "ft & in")],
                 selection: Binding(
@@ -24,6 +24,9 @@ struct HeightStepView: View {
                 )
             )
             .frame(width: 160)
+        }
+        .onChange(of: viewModel.heightText) { _ in
+            viewModel.validateHeight()
         }
     }
 }

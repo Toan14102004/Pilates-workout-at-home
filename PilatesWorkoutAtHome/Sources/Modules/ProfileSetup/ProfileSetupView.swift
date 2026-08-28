@@ -114,9 +114,9 @@ struct ProfileSetupView: View {
         case .height:
             HeightStepView(viewModel: viewModel)
         case .currentWeight:
-            WeightStepView(viewModel: viewModel, text: $viewModel.currentWeightText)
+            WeightStepView(viewModel: viewModel, text: $viewModel.currentWeightText, type: .current)
         case .targetWeight:
-            WeightStepView(viewModel: viewModel, text: $viewModel.targetWeightText)
+            WeightStepView(viewModel: viewModel, text: $viewModel.targetWeightText, type: .target)
         case .age:
             AgeStepView(viewModel: viewModel)
         case .workoutLocation:

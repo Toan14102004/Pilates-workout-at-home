@@ -21,15 +21,18 @@ extension ProfileSetupView {
         @Published var targetWeightText: String = ""
         @Published var ageText: String = ""
         @Published var showAgeError: Bool = false
+        @Published var heightErrorText: String?
+        @Published var currentWeightErrorText: String?
+        @Published var targetWeightErrorText: String?
 
         var isNextEnabled: Bool {
             switch currentStep {
             case .motivation: answers.motivation != nil
             case .primaryGoal: answers.primaryGoal != nil
-            case .height: !heightText.isEmpty
-            case .currentWeight: !currentWeightText.isEmpty
-            case .targetWeight: !targetWeightText.isEmpty
-            case .age: !ageText.isEmpty
+            case .height: !heightText.isEmpty && heightErrorText == nil
+            case .currentWeight: !currentWeightText.isEmpty && currentWeightErrorText == nil
+            case .targetWeight: !targetWeightText.isEmpty && targetWeightErrorText == nil
+            case .age: !ageText.isEmpty && !showAgeError
             case .workoutLocation: answers.workoutLocation != nil
             case .preferredActivities: !answers.preferredActivities.isEmpty
             case .experienceLevel: answers.experienceLevel != nil
@@ -93,11 +96,28 @@ extension ProfileSetupView {
         func heightUnitChanged() {
             guard let cm = parsedHeightCm(from: heightText, unit: answers.heightUnit == .centimeters ? .feetInches : .centimeters) else { return }
             heightText = answers.heightUnit == .centimeters ? "\(cm)" : "\(Int((Double(cm) / 2.54).rounded()))"
+            validateHeight()
+        }
+
+        func validateHeight() {
+            guard !heightText.isEmpty, let cm = parsedHeightCm(from: heightText, unit: answers.heightUnit) else {
+                heightErrorText = nil
+                return
+            }
+            heightErrorText = (100...250).contains(cm) ? nil : "Height must be 100-250 cm"
         }
 
         func weightUnitChanged(text: inout String) {
             guard let kg = parsedWeightKg(from: text, unit: answers.weightUnit == .kilograms ? .pounds : .kilograms) else { return }
             text = answers.weightUnit == .kilograms ? "\(Int(kg.rounded()))" : "\(Int((kg * 2.20462).rounded()))"
+        }
+
+        func validateWeight(_ text: String, errorBinding: inout String?) {
+            guard !text.isEmpty, let kg = parsedWeightKg(from: text, unit: answers.weightUnit) else {
+                errorBinding = nil
+                return
+            }
+            errorBinding = (30...300).contains(kg) ? nil : "Weight must be 30-300 kg"
         }
 
         private func parsedHeightCm(from text: String, unit: HeightUnit) -> Int? {
@@ -129,10 +149,16 @@ extension ProfileSetupView {
         func next() {
             switch currentStep {
             case .height:
+                validateHeight()
+                guard heightErrorText == nil else { return }
                 answers.heightCm = parsedHeightCm(from: heightText, unit: answers.heightUnit)
             case .currentWeight:
+                validateWeight(currentWeightText, errorBinding: &currentWeightErrorText)
+                guard currentWeightErrorText == nil else { return }
                 answers.currentWeightKg = parsedWeightKg(from: currentWeightText, unit: answers.weightUnit)
             case .targetWeight:
+                validateWeight(targetWeightText, errorBinding: &targetWeightErrorText)
+                guard targetWeightErrorText == nil else { return }
                 answers.targetWeightKg = parsedWeightKg(from: targetWeightText, unit: answers.weightUnit)
             case .age:
                 guard let age = Int(ageText), (10...100).contains(age) else {
