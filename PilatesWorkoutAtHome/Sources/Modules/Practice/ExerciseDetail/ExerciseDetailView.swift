@@ -61,6 +61,7 @@ struct ExerciseDetailView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .onAppear(perform: viewModel.loadIfNeeded)
+        .onDisappear(perform: viewModel.stopMusic)
         .trackScreen("exerciseDetailVC")
     }
 
@@ -69,7 +70,7 @@ struct ExerciseDetailView: View {
     @ViewBuilder
     private var hero: some View {
         if let videoUrl = viewModel.exercise?.videoUrl {
-            ExerciseVideoPlayer(url: videoUrl)
+            ExerciseVideoPlayer(url: videoUrl, onPlaybackStateChange: viewModel.handleClipPlaybackChange)
                 .id(videoUrl)
         } else {
             RemoteImageView(url: viewModel.exercise?.imageUrl)

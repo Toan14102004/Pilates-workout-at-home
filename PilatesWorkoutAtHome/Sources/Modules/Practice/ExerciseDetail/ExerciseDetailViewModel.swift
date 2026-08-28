@@ -28,6 +28,7 @@ extension ExerciseDetailView {
         /// to avoid re-requesting when the user pages back and forth.
         private var detailRequested = Set<String>()
         private var cancellables = Set<AnyCancellable>()
+        private let musicPlayer = BackgroundMusicPlayer.shared
 
         init(workoutId: String, initialExerciseId: String) {
             self.workoutId = workoutId
@@ -62,7 +63,22 @@ extension ExerciseDetailView {
                     currentIndex = day.exercises.firstIndex { $0.id == self.initialExerciseId } ?? 0
                     draftDurationSeconds = exercise?.durationSeconds ?? 0
                     loadDetailForCurrent()
+                    startBackgroundMusic()
                 }
+                .store(in: &cancellables)
+        }
+
+        /// This screen previews one exercise's demo clip (silent) rather than running a timed
+        /// session, but it's still "practicing" from the user's point of view -- the chosen
+        /// workout track should be audible here too, exactly like the full guided session.
+        private func startBackgroundMusic() {
+            let settings = localStorageService.workoutSettings
+            BackgroundMusicService.shared.fetchBackgroundMusic()
+                .receive(on: DispatchQueue.main)
+                .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] tracks in
+                    guard let self, let track = tracks.first(where: { $0.id == settings.selectedTrackId }) ?? tracks.first else { return }
+                    self.musicPlayer.play(track, volume: Float(settings.musicVolume), loop: true)
+                })
                 .store(in: &cancellables)
         }
 
@@ -124,7 +140,23 @@ extension ExerciseDetailView {
         }
 
         func close() {
+            musicPlayer.stop()
             navigator.goBack()
+        }
+
+        /// Catches leaving via a back-swipe gesture, which never calls `close()`.
+        func stopMusic() {
+            musicPlayer.stop()
+        }
+
+        /// Keeps the music in step with the demo clip: paused when the user pauses the clip or
+        /// it plays through to the end, resumed when they play or replay it.
+        func handleClipPlaybackChange(isPlaying: Bool) {
+            if isPlaying {
+                musicPlayer.resume()
+            } else {
+                musicPlayer.pause()
+            }
         }
     }
 }
