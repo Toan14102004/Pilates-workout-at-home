@@ -70,7 +70,7 @@ struct ExerciseDetailView: View {
     @ViewBuilder
     private var hero: some View {
         if let videoUrl = viewModel.exercise?.videoUrl {
-            ExerciseVideoPlayer(url: videoUrl, onPlaybackStateChange: viewModel.handleClipPlaybackChange)
+            ExerciseVideoPlayer(url: videoUrl, onPlaybackStateChange: viewModel.handleClipPlaybackChange, onPlaybackEnded: viewModel.handleClipPlaybackEnded)
                 .id(videoUrl)
         } else {
             RemoteImageView(url: viewModel.exercise?.imageUrl)

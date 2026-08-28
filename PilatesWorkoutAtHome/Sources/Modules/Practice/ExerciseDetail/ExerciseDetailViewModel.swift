@@ -13,6 +13,7 @@ extension ExerciseDetailView {
         @Navigation var navigator
         @Injected var localStorageService: LocalStorageService
         @Injected var workoutService: WorkoutService
+        @Injected var progressStore: WorkoutProgressStore
 
         @Published var coordinator = Coordinator()
         @Published var exercises: [WorkoutExercise] = []
@@ -29,6 +30,8 @@ extension ExerciseDetailView {
         private var detailRequested = Set<String>()
         private var cancellables = Set<AnyCancellable>()
         private let musicPlayer = BackgroundMusicPlayer.shared
+        /// Track exercises marked as completed this session to avoid marking twice.
+        private var completedExerciseIds = Set<String>()
 
         init(workoutId: String, initialExerciseId: String) {
             self.workoutId = workoutId
@@ -157,6 +160,14 @@ extension ExerciseDetailView {
             } else {
                 musicPlayer.pause()
             }
+        }
+
+        /// Called when the exercise video finishes playing.
+        func handleClipPlaybackEnded() {
+            guard let exercise else { return }
+            guard !completedExerciseIds.contains(exercise.id) else { return }
+            completedExerciseIds.insert(exercise.id)
+            progressStore.markExerciseCompleted(exercise, in: workoutId)
         }
     }
 }

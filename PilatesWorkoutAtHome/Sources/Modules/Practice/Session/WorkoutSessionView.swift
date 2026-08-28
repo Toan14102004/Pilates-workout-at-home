@@ -262,7 +262,7 @@ struct WorkoutSessionView: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(Asset.Color.white.color)
                 .frame(width: wide ? 64 : 52, height: 44)
-                .background(filled ? Asset.Color.mainColor.color : Asset.Color.textPrimary.color)
+                .background(Asset.Color.mainColor.color)
                 .clipShape(RoundedRectangle(cornerRadius: Layout.CornerRadius.medium, style: .continuous))
         }
     }

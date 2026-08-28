@@ -28,15 +28,17 @@ struct ExerciseVideoPlayer: UIViewRepresentable {
     /// played through to the end -- lets a host screen (Exercise Detail) keep its own
     /// background music in step with the demo clip rather than looping on regardless.
     var onPlaybackStateChange: ((Bool) -> Void)?
+    /// Fires when the video reaches the end (browsing mode only).
+    var onPlaybackEnded: (() -> Void)?
 
     func makeUIView(context _: Context) -> ExerciseClipView {
         let view = ExerciseClipView()
-        view.configure(url: url, mode: mode, onPlaybackStateChange: onPlaybackStateChange)
+        view.configure(url: url, mode: mode, onPlaybackStateChange: onPlaybackStateChange, onPlaybackEnded: onPlaybackEnded)
         return view
     }
 
     func updateUIView(_ uiView: ExerciseClipView, context _: Context) {
-        uiView.configure(url: url, mode: mode, onPlaybackStateChange: onPlaybackStateChange)
+        uiView.configure(url: url, mode: mode, onPlaybackStateChange: onPlaybackStateChange, onPlaybackEnded: onPlaybackEnded)
     }
 
     static func dismantleUIView(_ uiView: ExerciseClipView, coordinator _: ()) {
@@ -63,11 +65,15 @@ final class ExerciseClipView: UIView {
     private var hideWork: DispatchWorkItem?
     private var mode: ExerciseVideoPlayer.Mode = .browsing
     private var onPlaybackStateChange: ((Bool) -> Void)?
+    private var onPlaybackEnded: (() -> Void)?
 
     private var state: PlaybackState = .paused {
         didSet {
             updatePlayPauseIcon()
             onPlaybackStateChange?(state == .playing)
+            if state == .ended {
+                onPlaybackEnded?()
+            }
         }
     }
 
@@ -95,8 +101,9 @@ final class ExerciseClipView: UIView {
 
     // MARK: - Playback
 
-    func configure(url: URL, mode: ExerciseVideoPlayer.Mode, onPlaybackStateChange: ((Bool) -> Void)? = nil) {
+    func configure(url: URL, mode: ExerciseVideoPlayer.Mode, onPlaybackStateChange: ((Bool) -> Void)? = nil, onPlaybackEnded: (() -> Void)? = nil) {
         self.onPlaybackStateChange = onPlaybackStateChange
+        self.onPlaybackEnded = onPlaybackEnded
 
         if url == currentURL {
             apply(mode: mode)
@@ -112,7 +119,7 @@ final class ExerciseClipView: UIView {
 
         let isSession = mode != .browsing
         controlsRow.isHidden = isSession
-        progressTrack.isHidden = isSession
+        progressTrack.isHidden = true
 
         playerLayer.player = player
         playerLayer.videoGravity = .resizeAspectFill
@@ -291,7 +298,7 @@ final class ExerciseClipView: UIView {
             for: .normal
         )
         button.tintColor = Asset.Color.white.uiColor
-        button.backgroundColor = UIColor.black.withAlphaComponent(0.45)
+        button.backgroundColor = Asset.Color.mainColor.uiColor
         button.layer.cornerRadius = diameter / 2
         NSLayoutConstraint.activate([
             button.widthAnchor.constraint(equalToConstant: diameter),

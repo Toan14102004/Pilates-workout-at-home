@@ -32,6 +32,15 @@ extension PracticeHomeView {
             load()
         }
 
+        /// "Start now"/"Continue" and the card title read `localStorageService` live on every
+        /// body evaluation, but that alone doesn't get this screen redrawn -- `loadIfNeeded()`
+        /// is a no-op after the first load, so returning here from an exercise or a session
+        /// otherwise leaves the stale title on screen until SwiftUI recomputes it for some other
+        /// reason. `objectWillChange.send()` forces that recompute without refetching anything.
+        func refreshOnAppear() {
+            objectWillChange.send()
+        }
+
         func load() {
             isLoading = true
             errorMessage = nil

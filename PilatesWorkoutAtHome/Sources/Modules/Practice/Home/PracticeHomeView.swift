@@ -33,7 +33,10 @@ struct PracticeHomeView: View {
             .padding(.horizontal, Layout.Spacing.m)
             .padding(.bottom, Layout.Spacing.xxl)
         }
-        .onAppear(perform: viewModel.loadIfNeeded)
+        .onAppear {
+            viewModel.loadIfNeeded()
+            viewModel.refreshOnAppear()
+        }
         .trackScreen("practiceHomeVC")
     }
 
