@@ -27,8 +27,13 @@ extension WorkoutSettingsView {
         @Published var duration: TimeInterval = 0
         @Published var isLoading = false
 
-        private var audioPlayer: AVAudioPlayer?
-        private var progressTimerCancellable: AnyCancellable?
+        /// Streams straight from the URL instead of downloading the whole track first --
+        /// tracks run 3-28 minutes, so waiting on a full download would leave this screen
+        /// silent for a long, connection-dependent stretch before any sound plays.
+        private var player: AVPlayer?
+        private var timeObserverToken: Any?
+        private var endObserver: NSObjectProtocol?
+        private var didActivateAudioSession = false
         private var cancellables = Set<AnyCancellable>()
         private let backgroundMusicService = BackgroundMusicService.shared
 
@@ -70,92 +75,97 @@ extension WorkoutSettingsView {
         func togglePlayback() {
             if isPlaying {
                 pausePlayback()
+            } else if player != nil {
+                player?.play()
+                isPlaying = true
             } else {
                 startPlayback()
             }
         }
 
         private func startPlayback() {
-            guard let currentTrack = currentTrack else { return }
-            guard let url = URL(string: currentTrack.audioUrl) else { return }
+            guard let currentTrack, let url = URL(string: currentTrack.audioUrl) else { return }
+
+            do {
+                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+                try AVAudioSession.sharedInstance().setActive(true)
+            } catch {
+                print("[BackgroundMusic] Failed to activate audio session: \(error)")
+            }
+
+            let item = AVPlayerItem(url: url)
+            let player = AVPlayer(playerItem: item)
+            self.player = player
+
+            item.publisher(for: \.duration)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] duration in
+                    guard duration.isNumeric else { return }
+                    self?.duration = duration.seconds
+                }
+                .store(in: &cancellables)
+
+            timeObserverToken = player.addPeriodicTimeObserver(
+                forInterval: CMTime(seconds: 0.25, preferredTimescale: 600),
+                queue: .main
+            ) { [weak self] time in
+                self?.currentTime = time.seconds
+            }
+
+            endObserver = NotificationCenter.default.addObserver(
+                forName: .AVPlayerItemDidPlayToEndTime,
+                object: item,
+                queue: .main
+            ) { [weak self] _ in
+                self?.nextTrack()
+            }
 
             isPlaying = true
-            downloadAndPlay(url: url)
+            player.play()
         }
 
         private func pausePlayback() {
             isPlaying = false
-            audioPlayer?.pause()
-            stopProgressTimer()
+            player?.pause()
         }
 
-        private func downloadAndPlay(url: URL) {
-            URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
-                guard let self = self, let data = data, error == nil else {
-                    DispatchQueue.main.async { self?.isPlaying = false }
-                    return
-                }
-
-                do {
-                    try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-                    try AVAudioSession.sharedInstance().setActive(true)
-
-                    let audioPlayer = try AVAudioPlayer(data: data, fileTypeHint: AVFileType.mp3.rawValue)
-                    DispatchQueue.main.async {
-                        self.audioPlayer = audioPlayer
-                        self.duration = audioPlayer.duration
-                        audioPlayer.play()
-                        self.startProgressTimer()
-                    }
-                } catch {
-                    print("[BackgroundMusic] Failed to start playback: \(error)")
-                    DispatchQueue.main.async { self.isPlaying = false }
-                }
-            }.resume()
-        }
-
-        private func startProgressTimer() {
-            progressTimerCancellable = Timer.publish(every: 0.25, on: .main, in: .common)
-                .autoconnect()
-                .sink { [weak self] _ in
-                    self?.updatePlaybackTime()
-                }
-        }
-
-        private func stopProgressTimer() {
-            progressTimerCancellable?.cancel()
-            progressTimerCancellable = nil
-        }
-
-        private func updatePlaybackTime() {
-            guard let player = audioPlayer, isPlaying else { return }
-            currentTime = player.currentTime
-            if duration > 0 && currentTime >= duration - 0.1 {
-                nextTrack()
+        private func stopPlayer() {
+            if let timeObserverToken {
+                player?.removeTimeObserver(timeObserverToken)
             }
+            timeObserverToken = nil
+            if let endObserver {
+                NotificationCenter.default.removeObserver(endObserver)
+            }
+            endObserver = nil
+            player?.pause()
+            player = nil
+            currentTime = 0
+            duration = 0
         }
 
         func seek(to time: TimeInterval) {
-            audioPlayer?.currentTime = max(0, min(time, duration))
-            currentTime = audioPlayer?.currentTime ?? 0
+            let clamped = max(0, min(time, duration))
+            player?.seek(to: CMTime(seconds: clamped, preferredTimescale: 600))
+            currentTime = clamped
         }
 
         func selectTrack(_ track: BackgroundMusic) {
             pausePlayback()
-            currentTime = 0
+            stopPlayer()
             settings.songTitle = track.title
             isPickingSong = false
         }
 
         func previousTrack() {
-            guard let currentTrack = currentTrack else { return }
+            guard let currentTrack else { return }
             let index = tracks.firstIndex(where: { $0.id == currentTrack.id }) ?? 0
             let newTrack = tracks[(index - 1 + tracks.count) % tracks.count]
             selectTrack(newTrack)
         }
 
         func nextTrack() {
-            guard let currentTrack = currentTrack else { return }
+            guard let currentTrack else { return }
             let index = tracks.firstIndex(where: { $0.id == currentTrack.id }) ?? 0
             let newTrack = tracks[(index + 1) % tracks.count]
             selectTrack(newTrack)
@@ -167,4 +177,3 @@ extension WorkoutSettingsView {
         }
     }
 }
-
