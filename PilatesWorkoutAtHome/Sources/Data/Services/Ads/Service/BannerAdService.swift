@@ -12,7 +12,7 @@ final class BannerAdService: AdService {
     @Injected var keychainStorage: KeychainStorage
 
     func canShow(adPlacement: AdPlacementRepresentable) -> Bool {
-        keychainStorage.adsEnabled && adPlacement.isEnabled
+        AppFlags.adsEnabled && adPlacement.isEnabled
     }
 
     func load(adPlacement _: AdPlacementRepresentable, adPlacementHigh _: AdPlacementRepresentable?) {
@@ -33,7 +33,7 @@ final class BannerAdService: AdService {
     }
 
     func load(bannerView: BannerView, collapse: BannerAdsView.Collapse?) {
-        guard keychainStorage.adsEnabled else { return }
+        guard AppFlags.adsEnabled else { return }
         
         // Safety check: Ensure rootViewController is present to prevent crashes (especially with FB Audience Network)
         if bannerView.rootViewController == nil {

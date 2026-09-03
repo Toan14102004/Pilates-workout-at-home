@@ -18,7 +18,7 @@ struct CollapseAdsEmptyView: View {
     @Binding var isVisible: Bool
     
     var body: some View {
-        if !isVisible || subscriptionManager.isSubscribed || !keychainStorage.adsEnabled || (!adPlacement.isEnabled && !(adPlacementHight?.isEnabled ?? false)) {
+        if !isVisible || subscriptionManager.isSubscribed || !AppFlags.adsEnabled || (!adPlacement.isEnabled && !(adPlacementHight?.isEnabled ?? false)) {
             EmptyView()
         } else {
             VStack {}
@@ -62,7 +62,7 @@ struct NativeAdsView: View {
 
     var body: some View {
         VStack {
-            if subscriptionManager.isSubscribed || !keychainStorage.adsEnabled || (!adPlacement.isEnabled && !(adPlacementHight?.isEnabled ?? false)) {
+            if subscriptionManager.isSubscribed || !AppFlags.adsEnabled || (!adPlacement.isEnabled && !(adPlacementHight?.isEnabled ?? false)) {
                 EmptyView()
             } else if nativeViewModel.nativeAd != nil {
                 VStack (spacing: 0) {
@@ -105,7 +105,7 @@ struct NativeAdsView: View {
             }
         }
         .onAppear {
-            guard !subscriptionManager.isSubscribed, keychainStorage.adsEnabled, adPlacement.isEnabled else { return }
+            guard !subscriptionManager.isSubscribed, AppFlags.adsEnabled, adPlacement.isEnabled else { return }
             if nativeViewModel.nativeAd == nil, !nativeViewModel.isLoading {
                 nativeViewModel.refreshAd()
             }

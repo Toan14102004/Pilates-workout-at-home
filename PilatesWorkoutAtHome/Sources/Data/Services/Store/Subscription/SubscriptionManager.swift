@@ -18,7 +18,7 @@ class SubscriptionManager: ObservableObject {
         didSet {
             switch subscriptionStatus {
             case .subscribed:
-                isSubscribed = true
+                hasActiveSubscription = true
             default:
                 break
             }
@@ -30,7 +30,15 @@ class SubscriptionManager: ObservableObject {
     @Published var statusMessage = ""
     @Published var availableProducts: [Product] = []
     @Published var introductoryOfferEligibility: [String: Bool] = [:]
-    @Published var isSubscribed: Bool = false
+    /// Whether StoreKit reports a live entitlement. Read `isSubscribed` instead — while IAP is
+    /// switched off this stays `false` but the app still behaves as if everything were paid for.
+    @Published var hasActiveSubscription: Bool = false
+
+    /// With `AppFlags.iapEnabled` off, version 1 hands every user what a subscriber gets: no ads,
+    /// no upsell, no locked workouts. Every caller already asks this question in that direction
+    /// ("hide the paywall", "unlock this"), so reporting `true` is all it takes to make the app
+    /// free — no call site checks the flag itself.
+    var isSubscribed: Bool { AppFlags.iapEnabled ? hasActiveSubscription : true }
 
     private var productIds: [String] {
         let localStorage = LocalStorageService.shared
@@ -49,6 +57,10 @@ class SubscriptionManager: ObservableObject {
     }
 
     init() {
+        // Nothing to sell while IAP is switched off: skip the StoreKit round trips entirely
+        // rather than fetching products no screen can reach.
+        guard AppFlags.iapEnabled else { return }
+
         // Load products and validate current entitlement on startup
         Task { await fetchSubscriptionProducts() }
         Task { await validateCurrentSubscription() }

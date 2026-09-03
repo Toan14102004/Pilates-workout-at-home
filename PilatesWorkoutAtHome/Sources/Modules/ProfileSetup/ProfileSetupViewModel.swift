@@ -184,7 +184,18 @@ extension ProfileSetupView {
 
         private func completeAfterDelay() {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) { [weak self] in
-                self?.navigator.presentCover(
+                guard let self else { return }
+
+                // This is the one paywall the app opens without first checking whether the user
+                // is a subscriber, so it needs the flag directly. Land on the same screen that
+                // closing the paywall would have led to, rather than stranding the user on the
+                // finished "generating plan" step.
+                guard AppFlags.iapEnabled else {
+                    navigator.push(RootView.Coordinator.Navigation.content)
+                    return
+                }
+
+                navigator.presentCover(
                     RootView.Coordinator.FullScreen.subscription(subscriptionEntryPoint: .onboarding),
                     withNavigation: true
                 )

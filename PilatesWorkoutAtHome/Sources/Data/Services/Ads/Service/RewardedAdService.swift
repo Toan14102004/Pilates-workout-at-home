@@ -19,7 +19,7 @@ final class RewardedAdService: NSObject, AdService {
 
     @MainActor
     func canShow(adPlacement: AdPlacementRepresentable) -> Bool {
-        guard keychainStorage.adsEnabled else { return false }
+        guard AppFlags.adsEnabled else { return false }
         guard adPlacement.isEnabled else { return false }
         guard !subscriptionManager.isSubscribed else { return false }
         return true

@@ -38,7 +38,7 @@ final class InterstitialAdService: NSObject, AdService {
     // MARK: - AdService
     @MainActor
     func canShow(adPlacement: AdPlacementRepresentable) -> Bool {
-        guard keychainStorage.adsEnabled else { return false }
+        guard AppFlags.adsEnabled else { return false }
         guard adPlacement.isEnabled else { return false }
         guard !subscriptionManager.isSubscribed else { return false }
         return true
@@ -129,7 +129,7 @@ final class InterstitialAdService: NSObject, AdService {
     
     @MainActor
     func show(adPlacement: AdPlacementRepresentable, adPlacementHigh: AdPlacementRepresentable?) {
-        guard keychainStorage.adsEnabled else { onDismissed?(); return }
+        guard AppFlags.adsEnabled else { onDismissed?(); return }
         guard !subscriptionManager.isSubscribed else { onDismissed?(); return }
 
         // Check if ad is ready

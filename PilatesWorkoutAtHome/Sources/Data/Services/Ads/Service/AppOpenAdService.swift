@@ -27,7 +27,7 @@ final class AppOpenAdService: NSObject, AdService {
 
     @MainActor
     func canShow(adPlacement: AdPlacementRepresentable) -> Bool {
-        guard keychainStorage.adsEnabled else { return false }
+        guard AppFlags.adsEnabled else { return false }
         guard !localStorageService.isFirstTimeOpenApp else { return false }
         guard !isShowingAppOpenAd else { return false }
         guard firstTimeShowOpenAd else { firstTimeShowOpenAd = true; return false }

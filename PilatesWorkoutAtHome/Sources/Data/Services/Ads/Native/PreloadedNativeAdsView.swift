@@ -43,7 +43,7 @@ struct PreloadedNativeAdsView: View {
 
   var body: some View {
     VStack {
-      if subscriptionManager.isSubscribed || !keychainStorage.adsEnabled {
+      if subscriptionManager.isSubscribed || !AppFlags.adsEnabled {
         EmptyView()
       } else if let viewModel = targetViewModel, let nativeAd = adObserver.nativeAd {
         let _ = print("[PreloadedNativeAdsView] [\(adKey)] Showing loaded ad (Observer)")

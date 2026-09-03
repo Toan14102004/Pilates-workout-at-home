@@ -38,7 +38,7 @@ struct BannerAdsView: View {
 
     var body: some View {
         VStack {
-            if subscriptionManager.isSubscribed || !keychainStorage.adsEnabled || !adPlacement.isEnabled || !isAdLoaded {
+            if subscriptionManager.isSubscribed || !AppFlags.adsEnabled || !adPlacement.isEnabled || !isAdLoaded {
                 // Empty - ad hidden
                 EmptyView()
             } else {
